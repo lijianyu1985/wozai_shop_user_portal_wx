@@ -58,8 +58,11 @@ wepy.app({
 <config>
 {
     pages: [
-      'pages/index',
-      "pages/example"
+      "pages/home",
+      "pages/commodity",
+      "pages/group",
+      "pages/me",
+      "pages/example",
     ],
     window: {
       backgroundTextStyle: 'light',

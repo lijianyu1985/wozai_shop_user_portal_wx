@@ -1,13 +1,15 @@
 {
 	"description": "A WePY project",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": false,
+		"enhance": false,
 		"postcss": false,
 		"preloadBackgroundData": false,
 		"minified": false,
 		"newFeature": true,
 		"coverView": true,
+		"nodeModules": true,
 		"autoAudits": false,
 		"showShadowRootInWxmlPanel": true,
 		"scopeDataCheck": false,
@@ -19,7 +21,7 @@
 			"disablePlugins": [],
 			"outputPath": ""
 		},
-		"nodeModules": true
+		"bundle": false
 	},
 	"compileType": "miniprogram",
 	"appid": "wxdc15c4959cdc3e14",

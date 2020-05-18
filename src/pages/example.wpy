@@ -12,13 +12,6 @@
 
 <template>
   <div class="container">
-    <panel>
-      <div class="title" slot="title">登录</div>
-      <van-button @tap="requestLogin" size="mini"> 点我发起登录请求 </van-button>
-      <van-button @tap="requestUserInfo" size="mini"> 点我发起用户信息请求 </van-button>
-      <van-button @tap="requestOpenSetting" size="mini"> 点我发起用户信息请求 </van-button>
-      <van-button open-type="getUserInfo">授权登录</van-button>
-    </panel>
   </div>
 </template>
 
@@ -26,55 +19,11 @@
 import wepy from '@wepy/core'
 
 wepy.page({
-    methods: {
-      requestLogin(){
-         wx.login({
-        success: function (data) {
-            wx.getUserInfo({
-                success: function (userinfo) {
-              console.log(userinfo)
-                }
-            });
-        }
-    });
-      },
-      requestUserInfo(){
-       wx.getSetting({
-        success (res) {
-          console.log(res)
-          wx.getUserInfo({
-            success: function(ress) {
-              console.log(ress)
-            }
-          })
-          // res.authSetting = {
-          //   "scope.userInfo": true,
-          //   "scope.userLocation": true
-          // }
-        }
-      })
-    },
-      requestOpenSetting(){
-       wx.openSetting({
-  success (res) {
-    console.log(res)
-    // res.authSetting = {
-    //   "scope.userInfo": true,
-    //   "scope.userLocation": true
-    // }
-  }
-})
-    },
-    }
 })
 </script>
 
 <config>
 {
-  navigationBarTitleText: 'WePY 2.0 login Demo',
-  "usingComponents": {
-      panel: '~@/components/panel',
-      "van-button": "~@/components/vantweapp/button"
-  },
+  navigationBarTitleText: 'WePY 2.0 login Demo'
 }
 </config>
