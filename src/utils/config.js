@@ -4,7 +4,7 @@ const apiUrlTable = {
   pre: 'http://192.168.12.89:12000',
   release: 'http://localhost:12000'
 }
-const apiUrl = apiUrlTable.pre;
+const apiUrl = apiUrlTable.local;
 
 export default {
   apiUrl

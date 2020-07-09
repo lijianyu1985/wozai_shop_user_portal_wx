@@ -170,6 +170,9 @@ wepy.page({
       path: '/pages/commodity?id='+this.commodity._id
     }
   },
+  onShow:function(){
+    wx.hideHomeButton();
+  },
   data: {
     id:null,
     commodity: {
