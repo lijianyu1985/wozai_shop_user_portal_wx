@@ -38,8 +38,8 @@ page {
 </script>
 <config>
 {
-    navigationBarTitleText: '老三的店',
-    usingComponents: {
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
       "van-button": "~@/components/vant/button"
     }
 }

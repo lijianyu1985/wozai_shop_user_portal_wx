@@ -1,0 +1,60 @@
+<style type="less">
+.commodityiteminfo {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
+  margin: 10px
+}
+.content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 15px;
+  margin-left: 3px;
+}
+.price-stepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 15px;
+  margin-top: 5px;
+}
+</style>
+
+<template>
+    <view class="commodityiteminfo">
+        <view>
+        <image
+            cover
+            lazy-load
+            fit="cover"
+            style="width:{{width*0.32}}px;height:{{width*0.32}}px;border-radius:2px;"
+            src="{{photo}}"
+        >
+        </view>
+        <view style="width:95%;height:{{width*0.32}}px;">
+            <text class="content">{{name}}</text>
+            <view class="price-stepper">
+                <view>￥12.98</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+wepy.component({
+  props: {
+    name: '',
+    photo: '',
+    width: 100,
+  },
+  data: {},
+});
+</script>

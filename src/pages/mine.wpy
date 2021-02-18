@@ -1,0 +1,35 @@
+<style lang="less">
+
+</style>
+
+<template>
+    <div class="container">
+        Mine
+    </div>
+</template>
+
+<script>
+    import wepy from '@wepy/core'
+    wepy.page({
+        config: {
+            navigationBarTitleText: 'test'
+        },
+        data: {},
+        methods: {
+            handleViewTap() {
+                console.log('handleVieTap clicked');
+            },
+        },
+        onShow: function() {
+        },
+    });
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button"
+    }
+}
+</config>

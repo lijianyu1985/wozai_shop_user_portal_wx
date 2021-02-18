@@ -1,0 +1,2 @@
+export const ADDINTOCART = 'ADDINTOCART';
+export const REMOVEFROMCART = 'REMOVEFROMCART';

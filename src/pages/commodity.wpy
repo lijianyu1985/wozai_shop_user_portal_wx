@@ -104,12 +104,6 @@ page {
   box-sizing: border-box;
   margin-top: 10rpx;
 }
-.bottom {
-}
-.buy {
-}
-.me {
-}
 </style>
 
 <template>
@@ -219,8 +213,8 @@ wepy.page({
 
 <config>
 {
-  navigationBarTitleText: '商品详情',
-    usingComponents: {
+  "navigationBarTitleText": '商品详情',
+    "usingComponents": {
       "van-cell": "~@/components/vant/cell/index",
       "van-cell-group": "~@/components/vant/cell-group/index",
       "van-button": "~@/components/vant/button",

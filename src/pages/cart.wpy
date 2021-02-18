@@ -1,0 +1,99 @@
+<style lang="less">
+</style>
+
+<template>
+    <view class="container">
+        <block wx:for="{{cart.cartItems}}" wx:for-item="cartItem" wx:key="index">
+            <cartitem
+                @refresh-into-cart="refreshItemIntoCart"
+                @remove-from-cart="removeItemFromCart"
+                item="{{cartItem}}"
+                width="{{windowWidth-130}}"
+            />
+        </block>
+    </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import store from '../store';
+import { mapState, mapActions } from '@wepy/redux';
+import { ADDINTOCART, REMOVEFROMCART } from '../store/types';
+
+wepy.page({
+  store,
+  config: {
+    navigationBarTitleText: 'test',
+  },
+  data: {
+    windowWidth: 0,
+  },
+  computed: mapState(['cart']),
+  watch: {
+    'cart.cartItems': function(newVal, oldVal) {
+      console.log(newVal);
+    },
+  },
+  methods: {
+    ...mapActions({
+      addIntoCart: ADDINTOCART,
+      removeFromCart: REMOVEFROMCART,
+    }),
+    handleViewTap() {
+      console.log('handleVieTap clicked');
+    },
+    refreshItemIntoCart(commodity, sku, count) {
+      this.removeFromCart({
+        cartItem: {
+          commodity,
+          sku,
+          count,
+        },
+      });
+      this.addIntoCart({
+        cartItem: {
+          commodity,
+          sku,
+          count,
+        },
+      });
+    },
+    removeItemFromCart(commodity, sku, count) {
+      this.removeFromCart({
+        cartItem: {
+          commodity,
+          sku,
+          count,
+        },
+      });
+      if (this.cart.cartItems.length === 0) {
+        wx.removeTabBarBadge({
+          index: 1,
+        });
+      }
+    },
+  },
+  onReady: function() {
+    console.log(this.cart);
+  },
+  onLoad() {
+    let that = this;
+    wx.getSystemInfo({
+      success: function(res) {
+        that.windowHeight = res.windowHeight;
+        that.windowWidth = res.windowWidth;
+      },
+    });
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "cartitem": "~@/components/cartitem",
+    }
+}
+</config>

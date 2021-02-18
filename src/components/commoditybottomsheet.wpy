@@ -1,0 +1,162 @@
+<style type="less">
+.commoditybottomsheet {
+  width: 100%;
+}
+.bottom-sheet-subdivide {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.bottom-sheet-subdivide-button {
+  margin: 5px;
+  padding: 0;
+  width: auto;
+  min-width: auto;
+}
+
+.bottom-sheet-subdivide-button button {
+  padding-left: 3px;
+  padding-right: 3px;
+  margin: 0;
+  width: auto;
+  min-width: auto;
+}
+.bottom-sheet-cart-button {
+  width: 100%;
+  display: flex;
+}
+.bottom-sheet-cart-button button {
+  width: 100%;
+}
+.bottom-sheet-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 6px;
+}
+</style>
+
+<template>
+    <view class="bottom-sheet">
+        <commodityiteminfo
+            width="{{windowWidth-130}}"
+            name="{{commoditiy.name}}"
+            photo="{{commoditiy.photo}}"
+        />
+        <view
+            wx:for="{{commoditiy.subdivide}}"
+            wx:for-item="item"
+            wx:key="index"
+            class="bottom-sheet-subdivide"
+        >
+            <text class="bottom-sheet-subdivide-text">{{item.kind}}</text>
+            <block wx:for="{{item.valueList}}" wx:for-item="vl" wx:key="index">
+                <van-button
+                    bind:click="onSubdivideClick"
+                    data-value="{{vl}}"
+                    data-kind="{{item.kind}}"
+                    size="mini"
+                    class="bottom-sheet-subdivide-button"
+                    type="{{subdivideList && subdivideList[item.kind] === vl ? 'primary':'default'}}"
+                >{{vl}}</van-button>
+            </block>
+        </view>
+        <view class="bottom-sheet-count">
+            <text>数量</text>
+            <van-stepper
+                button-size="24px"
+                disabled="{{!skuChoosed}}"
+                value="{{ count }}"
+                bind:change="onCountChange"
+            />
+        </view>
+        <van-button
+            bind:click="onCartClick"
+            disabled="{{!skuChoosed}}"
+            class="bottom-sheet-cart-button"
+            type="primary"
+        >加入购物车</van-button>
+    </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+wepy.component({
+  props: {
+    commoditiy: {},
+    windowWidth: 0,
+  },
+  data: {
+    subdivideList: {},
+    count: 1,
+    skuChoosed: false,
+  },
+  watch: {
+    commoditiy: function(newVal, oldVal) {
+      this.subdivideList = {};
+      this.skuChoosed = false;
+      this.sku = null;
+      this.count = 1;
+    },
+  },
+  methods: {
+    onCountChange(e) {
+      this.count = e.$wx.detail;
+    },
+    onSubdivideClick(e) {
+      if (!this.subdivideList) {
+        this.subdivideList = {};
+      }
+      this.subdivideList = Object.assign({}, this.subdivideList, {
+        [e.$wx.target.dataset.kind]: e.$wx.target.dataset.value,
+      });
+      if (
+        Object.keys(this.subdivideList).length ===
+        this.commoditiy.subdivide.length
+      ) {
+        for (var i = 0; i < this.commoditiy.skus.length; i++) {
+          var sku = this.commoditiy.skus[i];
+          if (sku.subdivide) {
+            var matchedCount = 0;
+            for (var j = 0; j < sku.subdivide.length; j++) {
+              var skuSubdivide = sku.subdivide[j];
+              if (
+                skuSubdivide &&
+                this.subdivideList[skuSubdivide.kind] === skuSubdivide.value
+              ) {
+                matchedCount++;
+              }
+            }
+            if (matchedCount === sku.subdivide.length) {
+              this.sku = sku;
+              this.skuChoosed = true;
+              break;
+            }
+          }
+        }
+      } else {
+        this.sku = null;
+        this.skuChoosed = false;
+      }
+      console.log(this.subdivideList);
+      console.log(this.commoditiy.subdivide);
+      console.log(this.skuChoosed);
+    },
+    onCartClick(e) {
+      this.$emit('add-into-cart', this.commoditiy, this.sku, this.count);
+    },
+  },
+});
+</script>
+
+<config>
+{
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-stepper": "~@/components/vant/stepper",
+      "commoditybottomsheet": "~@/components/commoditybottomsheet",
+      "commodityiteminfo": "~@/components/commodityiteminfo"
+    }
+}
+</config>

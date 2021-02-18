@@ -1,27 +1,50 @@
-import config from '../utils/config'
+import config from '../utils/config';
 
-const apiUrl = config.apiUrl
+const apiUrl = config.apiUrl;
 
-export const buildPictureUrl = url => {
-  let pictureUrl = encodeURI(url)
-  if (pictureUrl.indexOf('http://') !== 0 && pictureUrl.indexOf('https://') !== 0) {
-    pictureUrl = `${trimEnd(apiUrl, '/')}/${trimStart(pictureUrl, '/')}`
+export const buildPictureUrl = (url) => {
+  let pictureUrl = encodeURI(url);
+  if (
+    pictureUrl.indexOf('http://') !== 0 &&
+    pictureUrl.indexOf('https://') !== 0
+  ) {
+    pictureUrl = `${trimEnd(apiUrl, '/')}/${trimStart(pictureUrl, '/')}`;
   }
-  return pictureUrl
-}
+  return pictureUrl;
+};
 
 export const trimEnd = (val, target) => {
-  if (!val) { return val }
-  if (val.lastIndexOf(target) !== (val.length - target.length)) {
-    return val
+  if (!val) {
+    return val;
   }
-  return val.substring(0, val.length - target.length)
-}
+  if (val.lastIndexOf(target) !== val.length - target.length) {
+    return val;
+  }
+  return val.substring(0, val.length - target.length);
+};
 
 export const trimStart = (val, target) => {
-  if (!val) { return val }
-  if (!val.startsWith(target)) {
-    return val
+  if (!val) {
+    return val;
   }
-  return val.substring(target.length)
-}
+  if (!val.startsWith(target)) {
+    return val;
+  }
+  return val.substring(target.length);
+};
+
+export const indexOfArray = (arr, filter) => {
+  for (var i = 0; i < arr.length; i++) {
+    if (filter(arr[i])) return i;
+  }
+  return -1;
+};
+
+export const removeFromArray = (arr, filter) => {
+  for (var i = 0; i < arr.length; i++) {
+    if (filter(arr[i])) {
+      arr.splice(i, 1);
+    }
+  }
+  return arr;
+};

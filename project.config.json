@@ -21,7 +21,14 @@
 			"disablePlugins": [],
 			"outputPath": ""
 		},
-		"bundle": false
+		"bundle": false,
+		"packNpmManually": true,
+		"packNpmRelationList": [
+			{
+				"packageJsonPath": "./package.json",
+				"miniprogramNpmDistDir": "./weapp/"
+			}
+		]
 	},
 	"compileType": "miniprogram",
 	"appid": "wxdc15c4959cdc3e14",

@@ -1,5 +1,6 @@
 const req = require('../utils/mp-req/index.js')
 // api
+const mainApi = require('./api/main.js')
 const commodityApi = require('./api/commodity.js')
 import config from '../utils/config';
 
@@ -43,6 +44,7 @@ req.init({
   isSessionAvailable
 })
 
+req.use(mainApi)
 req.use(commodityApi)
 
 module.exports = req

@@ -1,0 +1,57 @@
+<style lang="less">
+
+</style>
+
+<template>
+    <van-tabbar active="{{ active }}" bind:change="onChange">
+        <van-tabbar-item wx:for="{{ list }}" wx:key="index" icon="{{ item.icon }}">{{ item.text }}</van-tabbar-item>
+    </van-tabbar>
+</template>
+
+<script>
+    import wepy from '@wepy/core';
+    wepy.component({
+        data: {
+            active: 0,
+            list: [{
+                    url: '/pages/main',
+                    icon: 'home-o',
+                    text: '首页'
+                },
+                {
+                    url: '/pages/categories',
+                    icon: 'apps-o',
+                    text: '分类'
+                },
+                {
+                    url: '/pages/cart',
+                    icon: 'shopping-cart-o',
+                    text: '购物车'
+                },
+                {
+                    url: '/pages/mine',
+                    icon: 'user-circle-o',
+                    text: '我的'
+                }
+            ]
+        },
+        attached() {},
+        methods: {
+            onChange(e) {
+                wx.switchTab({
+                    url: this.list[parseInt(e.$wx.detail)].url
+                });
+            }
+        }
+    });
+</script>
+
+<config>
+{
+    "component": true,
+    "usingComponents": {
+      "van-tabbar": "~@/components/vant/tabbar",
+      "van-tabbar-item": "~@/components/vant/tabbar-item"
+    },
+}
+</config>
