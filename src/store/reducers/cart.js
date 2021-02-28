@@ -12,8 +12,8 @@ export default handleActions(
           x.sku._id === action.payload.cartItem.sku._id
       );
       if (indexOf >= 0) {
-        state.cartItems[indexOf].count =
-          state.cartItems[indexOf].count + action.payload.cartItem.count;
+        state.cartItems[indexOf].count = action.payload.cartItem.count;
+        state.cartItems[indexOf].checked = action.payload.cartItem.checked;
         return {
           ...state,
         };

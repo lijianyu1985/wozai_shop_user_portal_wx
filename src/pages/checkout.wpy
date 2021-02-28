@@ -20,29 +20,29 @@
 </style>
 
 <template>
-  <view class="container">
-    <block
-      wx:for="{{cart.cartItems}}"
-      wx:for-item="cartItem"
-      wx:key="index"
-    >
-      <cartitem
-        @refresh-into-cart="refreshItemIntoCart"
-        @remove-from-cart="removeItemFromCart"
-        item="{{cartItem}}"
-        width="{{windowWidth-130}}"
-      />
-    </block>
-    <view class="bottom-checkout-button-container">
-      <view class="bottom-checkout-total">合计：￥{{total}}</view>
-      <van-button
-        bind:click="onCheckoutClick"
-        disabled="{{disableCheckout}}"
-        class="bottom-checkout-button"
-        type="primary"
-      >结算</van-button>
+    <view class="container">
+        <block
+            wx:for="{{cart.cartItems}}"
+            wx:for-item="cartItem"
+            wx:key="index"
+        >
+            <cartitem
+                @refresh-into-cart="refreshItemIntoCart"
+                @remove-from-cart="removeItemFromCart"
+                item="{{cartItem}}"
+                width="{{windowWidth-130}}"
+            />
+        </block>
+        <view class="bottom-checkout-button-container">
+            <view class="bottom-checkout-total">合计：￥{{total}}</view>
+            <van-button
+                bind:click="onCheckoutClick"
+                disabled="{{disableCheckout}}"
+                class="bottom-checkout-button"
+                type="primary"
+            >结算</van-button>
+        </view>
     </view>
-  </view>
 </template>
 
 <script>

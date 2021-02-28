@@ -6,33 +6,31 @@ module.exports = {
   eslint: true,
   cliLogs: !prod,
   static: ['static'],
-  build: {
-  },
+  build: {},
   resolve: {
     alias: {
       counter: path.join(__dirname, 'src/components/counter'),
-      '@': path.join(__dirname, 'src')
+      '@': path.join(__dirname, 'src'),
     },
     aliasFields: ['wepy', 'weapp'],
-    modules: ['node_modules']
+    modules: ['node_modules'],
   },
   compilers: {
     less: {
-      compress: prod
+      compress: prod,
     },
     babel: {
       sourceMap: true,
-      presets: [
-        '@babel/preset-env'
-      ],
+      presets: ['@babel/preset-env'],
       plugins: [
-        '@wepy/babel-plugin-import-regenerator'
-      ]
-    }
+        'transform-export-extensions',
+        'syntax-export-extensions',
+        '@wepy/babel-plugin-import-regenerator',
+      ],
+    },
   },
   plugins: [],
   appConfig: {
-    noPromiseAPI: ['createSelectorQuery']
-  }
-}
-
+    noPromiseAPI: ['createSelectorQuery'],
+  },
+};

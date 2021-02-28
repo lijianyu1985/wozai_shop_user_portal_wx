@@ -1,0 +1,122 @@
+<style lang="less">
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.cell-group {
+  width: 100%;
+}
+.cell {
+  width: 100%;
+}
+.list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 32rpx;
+  border-bottom: solid 2rpx #eeeeee;
+}
+</style>
+
+<template>
+  <div class="container">
+    <view
+      class="list cell-group"
+      wx:for="{{addressList}}"
+      wx:key="id"
+    >
+      <van-cell
+        border="{{ false }}"
+        title="{{item.name}} {{item.phone}}"
+        label="{{item.province}} {{item.city}} {{item.county}} {{item.address}}"
+        bind:click="editAddess"
+        data-id="{{item._id}}"
+      />
+      <van-icon
+        name="records"
+        size="40rpx"
+        bind:click="editAddess"
+        data-id="{{item._id}}"
+      />
+    </view>
+
+    <view style="height:32rpx"></view>
+    <view class="safe-bottom-box">
+      <van-button
+        type="primary"
+        icon="add-o"
+        block
+        bind:click="addAddess"
+      >新增收货地址</van-button>
+    </view>
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import req from '../req';
+import AUTH from '../utils/auth';
+
+wepy.page({
+  data: { addressList: [] },
+  methods: {
+    loadAddressList: function(e) {
+      req.common
+        .find({
+          modelName: 'Address',
+          query: `{"userId":"${wx.getStorageSync('uid')}"}`,
+        })
+        .then((res) => {
+          console.log(res.list);
+          this.addressList = res.list;
+        });
+    },
+    addAddess: function() {
+      wx.navigateTo({
+        url: '/pages/address',
+      });
+    },
+    editAddess: function(e) {
+      wx.navigateTo({
+        url: '/pages/address?id=' + e.currentTarget.dataset.id,
+      });
+    },
+    processLogin(e) {
+      if (!e.$wx.detail.userInfo) {
+        wx.showToast({
+          title: '已取消',
+          icon: 'none',
+        });
+        return;
+      }
+      AUTH.register(this);
+    },
+  },
+  onShow() {
+    AUTH.checkHasLogined().then((isLogined) => {
+      if (isLogined) {
+        this.loadAddressList();
+      } else {
+        wx.navigateBack({});
+      }
+    });
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-icon": "~@/components/vant/icon",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+    }
+}
+</config>

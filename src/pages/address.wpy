@@ -1,0 +1,222 @@
+<style lang="less">
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.cell-group {
+  width: 100%;
+}
+.cell {
+  width: 100%;
+}
+.safe-bottom-box {
+  width: 100%;
+  margin-top: 10px;
+}
+.address-save-button {
+  width: 100%;
+}
+.address-save-button button {
+  width: 100%;
+}
+</style>
+
+<template>
+  <div class="container">
+    <van-cell-group class="cell-group">
+      <van-field
+        value="{{ name }}"
+        label="姓名"
+        placeholder="请输入姓名"
+        data-key="name"
+        bind:change="onChange"
+      />
+      <van-field
+        value="{{ phone }}"
+        label="电话"
+        placeholder="请输入电话"
+        data-key="phone"
+        bind:change="onChange"
+      />
+      <van-cell
+        title="单元格"
+        is-link
+        value="{{ province }} {{ city }} {{ county }}"
+        bind:click="openAreaSelector"
+      />
+      <van-field
+        value="{{ address }}"
+        type="textarea"
+        autosize
+        label="详细地址"
+        placeholder="请输入详细地址"
+        data-key="address"
+        bind:change="onChange"
+      />
+    </van-cell-group>
+    <view class="safe-bottom-box">
+      <van-button
+        class="address-save-button"
+        type="primary"
+        block
+        bind:click="save"
+      >新增收货地址</van-button>
+    </view>
+    <van-dialog
+      use-slot
+      title="选择"
+      show="{{ show }}"
+      show-confirm-button="{{false}}"
+    >
+      <van-area
+        area-list="{{ region }}"
+        value="{{areaValue}}"
+        bind:confirm="onAreaConfirm"
+      />
+    </van-dialog>
+    <van-toast id="van-toast" />
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import region from '../utils/region';
+import req from '../req';
+import Toast from '../components/vant/toast/toast';
+
+wepy.page({
+  props: {
+    id: '',
+  },
+  data: {
+    region: {},
+    show: false,
+    province: '',
+    city: '',
+    county: '',
+    areaValue: '',
+    name: '',
+    phone: '',
+    address: '',
+  },
+  methods: {
+    handleViewTap() {
+      console.log('handleVieTap clicked');
+    },
+    openAreaSelector() {
+      this.show = true;
+    },
+    onAreaConfirm(e) {
+      this.show = false;
+      this.province = e.$wx.detail.values[0].name;
+      this.city = e.$wx.detail.values[1].name;
+      this.county = e.$wx.detail.values[2].name;
+      this.areaValue = e.$wx.detail.values[2].code;
+    },
+    onChange(e) {
+      this[e.$wx.target.dataset.key] = e.$wx.detail;
+    },
+    loadAddress(id) {
+      req.common
+        .get({
+          modelName: 'Address',
+          id: id,
+        })
+        .then((res) => {
+          if (res.success) {
+            this.province = res.data.province;
+            this.city = res.data.city;
+            this.county = res.data.county;
+            this.areaValue = res.data.areaValue;
+            this.name = res.data.name;
+            this.phone = res.data.phone;
+            this.address = res.data.address;
+          } else {
+            Toast('保存失败');
+          }
+        });
+    },
+    save() {
+      if (this.areaValue && this.name && this.phone && this.address) {
+        if (this.id) {
+          req.common
+            .change({
+              modelName: 'Address',
+              id: this.id,
+              data: {
+                id: this.id,
+                userId: wx.getStorageSync('uid'),
+                province: this.province,
+                city: this.city,
+                county: this.county,
+                areaValue: this.areaValue,
+                name: this.name,
+                phone: this.phone,
+                address: this.address,
+              },
+            })
+            .then((res) => {
+              if (res.success) {
+                Toast('保存成功');
+                wx.navigateBack({});
+              } else {
+                Toast('保存失败');
+              }
+            });
+        } else {
+          req.common
+            .create({
+              modelName: 'Address',
+              data: {
+                userId: wx.getStorageSync('uid'),
+                province: this.province,
+                city: this.city,
+                county: this.county,
+                areaValue: this.areaValue,
+                name: this.name,
+                phone: this.phone,
+                address: this.address,
+              },
+            })
+            .then((res) => {
+              if (res.success) {
+                Toast('保存成功');
+                wx.navigateBack({});
+              } else {
+                Toast('保存失败');
+              }
+            });
+        }
+      } else {
+        Toast('请填写信息');
+      }
+    },
+  },
+  onLoad() {
+    if (this.id) {
+      this.loadAddress(this.id);
+    }
+    this.region = region;
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-field": "~@/components/vant/field",
+      "van-area": "~@/components/vant/area",
+      "van-dialog": "~@/components/vant/dialog",
+      "van-toast": "~@/components/vant/toast",
+    }
+}
+</config>

@@ -83,7 +83,10 @@ page {
 
 <template>
   <view class="container">
-    <view class="classify" style="width: 100%; height: 100%">
+    <view
+      class="classify"
+      style="width: 100%; height: 100%"
+    >
       <scroll-view
         class="classify_catetory"
         scroll-y
@@ -105,7 +108,12 @@ page {
         style="height:{{windowHeight}}px"
       >
         <view class="children">
-          <view class="children_item" wx:for="{{commodities}}" wx:for-item="item" wx:key="index">
+          <view
+            class="children_item"
+            wx:for="{{commodities}}"
+            wx:for-item="item"
+            wx:key="index"
+          >
             <commodityitem
               @open-cart="openCart"
               width="{{windowWidth-130}}"
@@ -118,7 +126,12 @@ page {
         </view>
       </scroll-view>
     </view>
-    <van-popup bind:close="onClose" position="bottom" z-index="9999" show="{{ showSubdivide }}">
+    <van-popup
+      bind:close="onClose"
+      position="bottom"
+      z-index="9999"
+      show="{{ showSubdivide }}"
+    >
       <commoditybottomsheet
         @add-into-cart="addItemIntoCart"
         defaultCount="1"
@@ -293,6 +306,7 @@ wepy.page({
           commodity,
           sku,
           count,
+          checked: true,
         },
       });
       this.showSubdivide = false;

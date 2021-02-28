@@ -1,35 +1,112 @@
 <style lang="less">
-
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.cell-group {
+  width: 100%;
+}
+.cell {
+  width: 100%;
+}
 </style>
 
 <template>
-    <div class="container">
-        Mine
-    </div>
+  <div class="container">
+    <van-cell-group class="cell-group">
+      <van-cell
+        center
+        class="avatar"
+        title="{{nickName}}"
+      >
+        <van-image
+          use-error-slot
+          round
+          width="64rpx"
+          height="64rpx"
+          src="{{ avatarUrl }}"
+        >
+          <text slot="error">加载失败</text>
+        </van-image>
+      </van-cell>
+      <van-cell
+        class="cell"
+        title="地址"
+        is-link
+        link-type="navigateTo"
+        url="/pages/addresses"
+      />
+    </van-cell-group>
+    <van-dialog
+      id="van-dialog-auth-login"
+      bind:getuserinfo="processLogin"
+    />
+  </div>
 </template>
 
 <script>
-    import wepy from '@wepy/core'
-    wepy.page({
-        config: {
-            navigationBarTitleText: 'test'
-        },
-        data: {},
-        methods: {
-            handleViewTap() {
-                console.log('handleVieTap clicked');
-            },
-        },
-        onShow: function() {
-        },
+import wepy from '@wepy/core';
+import AUTH from '../utils/auth';
+import req from '../req';
+
+wepy.page({
+  data: { avatarUrl: 'avatarUrl', nickName: '' },
+  methods: {
+    handleViewTap() {
+      console.log('handleVieTap clicked');
+    },
+    processLogin(e) {
+      if (!e.$wx.detail.userInfo) {
+        wx.showToast({
+          title: '已取消',
+          icon: 'none',
+        });
+        return;
+      }
+      this.avatarUrl = e.$wx.detail.userInfo.avatarUrl;
+      this.nickName = e.$wx.detail.userInfo.nickName;
+      wx.setStorageSync('avatarUrl', e.$wx.detail.userInfo.avatarUrl);
+      wx.setStorageSync('nickName', e.$wx.detail.userInfo.nickName);
+      AUTH.login(this);
+    },
+    initProfile() {
+      req.profile
+        .basic(wx.getStorageSync('uid'))
+        .then((res) => {
+          console.log(res);
+        })
+        .catch();
+    },
+  },
+  onShow: function() {},
+  onLoad() {
+    AUTH.checkHasLogined().then((isLogined) => {
+      if (isLogined) {
+        this.avatarUrl = wx.getStorageSync('avatarUrl');
+        this.nickName = wx.getStorageSync('nickName');
+        this.initProfile();
+      } else {
+        AUTH.openLoginDialog();
+      }
     });
+  },
+});
 </script>
 
 <config>
 {
     "navigationBarTitleText": "老三家",
     "usingComponents": {
-      "van-button": "~@/components/vant/button"
+      "van-button": "~@/components/vant/button",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-dialog": "~@/components/vant/dialog",
+  "van-image": "~@/components/vant/image"
     }
 }
 </config>

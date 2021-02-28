@@ -1,45 +1,51 @@
 <style type="less">
-  .commodityitem {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    box-sizing: border-box;
-  }
-  .content {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    font-size: 15px;
-    margin-left: 3px;
-  }
-  .price-stepper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    font-size: 15px;
-    margin-top: 5px;
-  }
-  button.cart-icon-button {
-    border: none;
-    background-color: transparent;
-    color: seagreen;
-    padding: 5px 5px 5px 5px;
-    margin: 0;
-    width: auto;
-    min-width: auto;
-  }
+.commodityitem {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 15px;
+  margin-left: 3px;
+}
+.price-stepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 15px;
+  margin-top: 5px;
+}
+button.cart-icon-button {
+  border: none;
+  background-color: transparent;
+  color: seagreen;
+  padding: 5px 5px 5px 5px;
+  margin: 0;
+  width: auto;
+  min-width: auto;
+}
 </style>
 
 <template>
   <view class="commodityitem">
     <navigator url="/pages/commodity?id={{itemId}}">
-      <image cover lazy-load fit="cover" style="width:{{width*0.32}}px;height:{{width*0.32}}px;" src="{{photo}}" />
+      <image
+        cover
+        lazy-load
+        fit="cover"
+        style="width:{{width*0.32}}px;height:{{width*0.32}}px;"
+        src="{{photo}}"
+      />
     </navigator>
     <view style="width:95%;height:{{width*0.32}}px;">
       <navigator url="/pages/commodity?id={{itemId}}">
@@ -48,7 +54,12 @@
       <view class="price-stepper">
         <view>￥{{priceRange}}</view>
         <view>
-          <van-button bind:click="openCart" custom-class='cart-icon-button' size="small" icon="shopping-cart">
+          <van-button
+            bind:click="openCart"
+            custom-class="cart-icon-button"
+            size="small"
+            icon="shopping-cart"
+          >
         </view>
       </view>
     </view>
@@ -56,26 +67,26 @@
 </template>
 
 <script>
-  import wepy from '@wepy/core';
-  wepy.component({
-    props: {
-      name: '',
-      photo: '',
-      width: 100,
-      price: 0,
-      itemid: '',
-      priceRange:''
+import wepy from '@wepy/core';
+wepy.component({
+  props: {
+    name: '',
+    photo: '',
+    width: 100,
+    price: 0,
+    itemid: '',
+    priceRange: '',
+  },
+  data: {
+    windowHeight: 0,
+    windowWidth: 0,
+  },
+  methods: {
+    openCart(e) {
+      this.$emit('open-cart', this.itemid);
     },
-    data: {
-      windowHeight: 0,
-      windowWidth: 0,
-    },
-    methods: {
-      openCart(e) {
-        this.$emit('open-cart', this.itemid);
-      },
-    },
-  });
+  },
+});
 </script>
 
 <config>

@@ -6,7 +6,7 @@
   align-items: flex-start;
   justify-content: space-between;
   box-sizing: border-box;
-  margin: 10px
+  margin: 10px;
 }
 .content {
   display: -webkit-box;
@@ -28,23 +28,23 @@
 </style>
 
 <template>
-    <view class="commodityiteminfo">
-        <view>
-        <image
-            cover
-            lazy-load
-            fit="cover"
-            style="width:{{width*0.32}}px;height:{{width*0.32}}px;border-radius:2px;"
-            src="{{photo}}"
-        >
-        </view>
-        <view style="width:95%;height:{{width*0.32}}px;">
-            <text class="content">{{name}}</text>
-            <view class="price-stepper">
-                <view>￥12.98</view>
-            </view>
-        </view>
+  <view class="commodityiteminfo">
+    <view>
+      <image
+        cover
+        lazy-load
+        fit="cover"
+        style="width:{{width*0.32}}px;height:{{width*0.32}}px;border-radius:2px;"
+        src="{{photo}}"
+      >
     </view>
+    <view style="width:95%;height:{{width*0.32}}px;">
+      <text class="content">{{name}}</text>
+      <view class="price-stepper">
+        <view>￥{{price}}</view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
@@ -53,6 +53,7 @@ wepy.component({
   props: {
     name: '',
     photo: '',
+    price: 0,
     width: 100,
   },
   data: {},

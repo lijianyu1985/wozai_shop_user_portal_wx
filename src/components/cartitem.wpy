@@ -1,119 +1,156 @@
 <style type="less">
-    cartitem {
-        width: 95%;
-        margin: 0px;
-        padding-bottom: 10px;
-    }
-    .cartitem {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: space-between;
-        box-sizing: border-box;
-    }
-    .content {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 1;
-        overflow: hidden;
-        font-size: 15px;
-        margin-left: 3px;
-    }
-    .price-stepper {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        box-sizing: border-box;
-        font-size: 15px;
-        margin-top: 5px;
-    }
-    button.cart-icon-button {
-        border: none;
-        background-color: transparent;
-        color: sienna;
-        padding: 5px 5px 5px 5px;
-        margin: 0;
-        width: auto;
-        min-width: auto;
-    }
-    .cart-item-operation {
-        display: flex;
-        align-items: flex-end;
-        flex-direction: column;
-    }
-    .subdivide {
-        margin-left: 3px;
-        color: #c8c9cc;
-        font-size: 11px;
-    }
+cartitem {
+  width: 95%;
+  margin: 0px;
+  padding-bottom: 10px;
+}
+.cartitem {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  font-size: 15px;
+  margin-left: 3px;
+}
+.price-stepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 15px;
+  margin-top: 5px;
+}
+button.cart-icon-button {
+  border: none;
+  background-color: transparent;
+  color: sienna;
+  padding: 5px 5px 5px 5px;
+  margin: 0;
+  width: auto;
+  min-width: auto;
+}
+.cart-item-operation {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+}
+.subdivide {
+  margin-left: 3px;
+  color: #c8c9cc;
+  font-size: 11px;
+}
 </style>
 
 <template>
-    <view class="cartitem">
-        <image cover lazy-load fit="cover" style="width:{{width*0.40}}px;height:{{width*0.40}}px;" src="{{item.commodity.photo}}" />
-        <view style="width:95%;">
-            <text class="content">{{item.commodity.name}}</text>
-            <text class="subdivide">{{subdivide}}</text>
-            <view class="price-stepper">
-                <view>￥{{price}}</view>
-                <view class="cart-item-operation">
-                    <van-button bind:click="removeFromCart" custom-class='cart-icon-button' size="small" icon="delete">
-                    </van-button>
-                    <van-stepper button-size="24px" value="{{ item.count }}" bind:change="onCountChange" />
-                </view>
-            </view>
+  <view class="cartitem">
+    <van-checkbox
+      value="{{ item.checked }}"
+      bind:change="onChecking"
+    >
+    </van-checkbox>
+    <image
+      cover
+      lazy-load
+      fit="cover"
+      style="width:{{width*0.40}}px;height:{{width*0.40}}px;"
+      src="{{item.commodity.photo}}"
+    />
+    <view style="width:95%;">
+      <text class="content">{{item.commodity.name}}</text>
+      <text class="subdivide">{{subdivide}}</text>
+      <view class="price-stepper">
+        <view>￥{{price}}</view>
+        <view class="cart-item-operation">
+          <van-button
+            bind:click="removeFromCart"
+            custom-class="cart-icon-button"
+            size="small"
+            icon="delete"
+          >
+          </van-button>
+          <van-stepper
+            button-size="24px"
+            value="{{ item.count }}"
+            bind:change="onCountChange"
+          />
         </view>
+      </view>
     </view>
+  </view>
 </template>
 
 <script>
-    import wepy from '@wepy/core';
-    import {
-        buildPictureUrl
-    } from '../utils/tools';
-    wepy.component({
-        props: {
-            item: {},
-            width: 100,
-        },
-        data: {
-            windowHeight: 0,
-            windowWidth: 0,
-        },
-        computed: {
-            photo: function() {
-                return '12';
-            },
-            price: function() {
-                var price = 0;
-                if (this.item) {
-                    price = this.item.sku.price;
-                }
-                return price;
-            },
-            subdivide: function() {
-                var subdivide = [];
-                if (this.item) {
-                    for (var i = 0; i < this.item.sku.subdivide.length; i++) {
-                        subdivide.push(this.item.sku.subdivide[i].value);
-                    }
-                }
-                return subdivide.join(', ');
-            }
-        },
-        methods: {
-            onCountChange(e) {
-                console.log(this);
-                this.$emit('refresh-into-cart', this.item.commodity, this.item.sku, e.$wx.detail);
-            },
-            removeFromCart() {
-                this.$emit('remove-from-cart', this.item.commodity, this.item.sku, this.count);
-            }
-        },
-    });
+import wepy from '@wepy/core';
+import { buildPictureUrl } from '../utils/tools';
+wepy.component({
+  props: {
+    item: {},
+    width: 100,
+  },
+  data: {
+    windowHeight: 0,
+    windowWidth: 0,
+  },
+  computed: {
+    photo: function() {
+      return '12';
+    },
+    price: function() {
+      var price = 0;
+      if (this.item) {
+        price = this.item.sku.price;
+      }
+      return price;
+    },
+    subdivide: function() {
+      var subdivide = [];
+      if (this.item) {
+        for (var i = 0; i < this.item.sku.subdivide.length; i++) {
+          subdivide.push(this.item.sku.subdivide[i].value);
+        }
+      }
+      return subdivide.join(', ');
+    },
+  },
+  methods: {
+    onCountChange(e) {
+      this.$emit(
+        'refresh-into-cart',
+        this.item.commodity,
+        this.item.sku,
+        e.$wx.detail,
+        this.item.checked
+      );
+    },
+    onChecking(e) {
+      this.$emit(
+        'refresh-into-cart',
+        this.item.commodity,
+        this.item.sku,
+        this.item.count,
+        e.$wx.detail
+      );
+    },
+    removeFromCart() {
+      this.$emit(
+        'remove-from-cart',
+        this.item.commodity,
+        this.item.sku,
+        this.count
+      );
+    },
+  },
+});
 </script>
 
 <config>
@@ -121,8 +158,9 @@
     "usingComponents": {
       "van-button": "~@/components/vant/button",
       "van-stepper": "~@/components/vant/stepper",
-  "van-icon": "~@/components/vant/icon",
-  "van-button": "~@/components/vant/button"
+      "van-icon": "~@/components/vant/icon",
+      "van-checkbox": "~@/components/vant/checkbox",
+      "van-button": "~@/components/vant/button"
     }
 }
 </config>

@@ -38,46 +38,63 @@
 </style>
 
 <template>
-    <view class="bottom-sheet">
-        <commodityiteminfo
-            width="{{windowWidth-130}}"
-            name="{{commoditiy.name}}"
-            photo="{{commoditiy.photo}}"
-        />
-        <view
-            wx:for="{{commoditiy.subdivide}}"
-            wx:for-item="item"
-            wx:key="index"
-            class="bottom-sheet-subdivide"
-        >
-            <text class="bottom-sheet-subdivide-text">{{item.kind}}</text>
-            <block wx:for="{{item.valueList}}" wx:for-item="vl" wx:key="index">
-                <van-button
-                    bind:click="onSubdivideClick"
-                    data-value="{{vl}}"
-                    data-kind="{{item.kind}}"
-                    size="mini"
-                    class="bottom-sheet-subdivide-button"
-                    type="{{subdivideList && subdivideList[item.kind] === vl ? 'primary':'default'}}"
-                >{{vl}}</van-button>
-            </block>
-        </view>
-        <view class="bottom-sheet-count">
-            <text>数量</text>
-            <van-stepper
-                button-size="24px"
-                disabled="{{!skuChoosed}}"
-                value="{{ count }}"
-                bind:change="onCountChange"
-            />
-        </view>
+  <view class="bottom-sheet">
+    <commodityiteminfo
+      width="{{windowWidth-130}}"
+      name="{{commoditiy.name}}"
+      photo="{{commoditiy.photo}}"
+      price="{{price}}"
+    />
+    <view
+      wx:for="{{commoditiy.subdivide}}"
+      wx:for-item="item"
+      wx:key="index"
+      class="bottom-sheet-subdivide"
+    >
+      <text class="bottom-sheet-subdivide-text">{{item.kind}}</text>
+      <block
+        wx:for="{{item.valueList}}"
+        wx:for-item="vl"
+        wx:key="index"
+      >
         <van-button
-            bind:click="onCartClick"
-            disabled="{{!skuChoosed}}"
-            class="bottom-sheet-cart-button"
-            type="primary"
-        >加入购物车</van-button>
+          wx:if="{{!subdivideMap[item.kind+'-'+vl]}}"
+          data-value="{{vl}}"
+          data-kind="{{item.kind}}"
+          data-checked="{{subdivideList && subdivideList[item.kind] === vl}}"
+          disabled="{{true}}"
+          size="mini"
+          class="bottom-sheet-subdivide-button"
+          type="{{subdivideList && subdivideList[item.kind] === vl ? 'primary':'default'}}"
+        >{{vl}}</van-button>
+        <van-button
+          wx:else
+          bind:click="onSubdivideClick"
+          data-value="{{vl}}"
+          data-kind="{{item.kind}}"
+          data-checked="{{subdivideList && subdivideList[item.kind] === vl}}"
+          size="mini"
+          class="bottom-sheet-subdivide-button"
+          type="{{subdivideList && subdivideList[item.kind] === vl ? 'primary':'default'}}"
+        >{{vl}}</van-button>
+      </block>
     </view>
+    <view class="bottom-sheet-count">
+      <text>数量</text>
+      <van-stepper
+        button-size="24px"
+        disabled="{{!skuChoosed}}"
+        value="{{ count }}"
+        bind:change="onCountChange"
+      />
+    </view>
+    <van-button
+      bind:click="onCartClick"
+      disabled="{{!skuChoosed}}"
+      class="bottom-sheet-cart-button"
+      type="primary"
+    >加入购物车</van-button>
+  </view>
 </template>
 
 <script>
@@ -91,13 +108,44 @@ wepy.component({
     subdivideList: {},
     count: 1,
     skuChoosed: false,
+    subdivideMap: {},
+    subdivideMapAlways: {},
+    subdivideMapTotal: {},
+    subdivideMapTotalTemp: {},
+    kindLength: 0,
+    price: 0,
+    sku: {},
   },
   watch: {
+    sku: function(newVal, oldVal) {
+      if (newVal) {
+        this.price = newVal.price;
+      } else {
+        this.price = this.commoditiy.priceRange;
+      }
+    },
     commoditiy: function(newVal, oldVal) {
       this.subdivideList = {};
       this.skuChoosed = false;
       this.sku = null;
       this.count = 1;
+      this.subdivideMap = {};
+      this.subdivideMapTotal = {};
+      this.price = this.commoditiy.priceRange;
+      let subdivideKeys = [];
+      (newVal.skus || []).forEach((sku, i) => {
+        subdivideKeys = [];
+        (sku.subdivide || []).forEach((subdivide, j) => {
+          this.subdivideMap[`${subdivide.kind}-${subdivide.value}`] = true;
+          subdivideKeys.push(`${subdivide.kind}-${subdivide.value}`);
+        });
+        this.subdivideMapTotal[subdivideKeys.join(',')] = true;
+      });
+      this.subdivideMapTotalTemp = { ...this.subdivideMapTotal };
+      this.subdivideMapAlways = { ...this.subdivideMap };
+      if (subdivideKeys && subdivideKeys.length) {
+        this.kindLength = subdivideKeys.length;
+      }
     },
   },
   methods: {
@@ -108,9 +156,73 @@ wepy.component({
       if (!this.subdivideList) {
         this.subdivideList = {};
       }
-      this.subdivideList = Object.assign({}, this.subdivideList, {
-        [e.$wx.target.dataset.kind]: e.$wx.target.dataset.value,
+      if (e.$wx.target.dataset.checked) {
+        delete this.subdivideList[e.$wx.target.dataset.kind];
+      } else {
+        this.subdivideList = Object.assign({}, this.subdivideList, {
+          [e.$wx.target.dataset.kind]: e.$wx.target.dataset.value,
+        });
+      }
+      const subdivideMapTotalKeys = Object.keys(this.subdivideMapTotal);
+      this.subdivideMapTotalTemp = { ...this.subdivideMapTotal };
+      let availableKeysMap = {};
+      let availableKeys = [];
+      const subdivideMapAlwaysKeys = Object.keys(this.subdivideMapAlways);
+      Object.keys(this.subdivideList).forEach((x) => {
+        const choosedSubdivideKey = x + '-' + this.subdivideList[x];
+        subdivideMapAlwaysKeys.forEach((z) => {
+          if (z.indexOf(x) === 0) {
+            if (availableKeysMap[choosedSubdivideKey]) {
+              availableKeysMap[choosedSubdivideKey].push(z);
+            } else {
+              availableKeysMap[choosedSubdivideKey] = [z];
+            }
+          }
+        });
+        availableKeys = availableKeys.concat(
+          availableKeysMap[choosedSubdivideKey]
+        );
+        subdivideMapTotalKeys.forEach((y) => {
+          if (y.indexOf(choosedSubdivideKey) < 0) {
+            this.subdivideMapTotalTemp[y] = false;
+          } else {
+            availableKeysMap[y] = availableKeysMap[choosedSubdivideKey];
+          }
+        });
       });
+      subdivideMapTotalKeys.forEach((x) => {
+        if (this.subdivideMapTotalTemp[x]) {
+          availableKeys = availableKeys.concat(x.split(','));
+        }
+      });
+      const availableKeysCounter = {};
+      availableKeys.forEach((x) => {
+        if (availableKeysCounter[x]) {
+          availableKeysCounter[x] = availableKeysCounter[x] + 1;
+        } else {
+          availableKeysCounter[x] = 1;
+        }
+      });
+      const subdivideMapKeys = Object.keys(this.subdivideMap);
+      const subdivideListKeys = Object.keys(this.subdivideList);
+      const subdivideListPrefixKeys = subdivideListKeys.map(
+        (x) => x.split('-')[0]
+      );
+
+      subdivideMapKeys.forEach((x) => {
+        if (subdivideListPrefixKeys.indexOf(x.split('-')[0]) >= 0) {
+          if (this.kindLength === subdivideListKeys.length) {
+            this.subdivideMap[x] =
+              availableKeysCounter[x] >= subdivideListKeys.length - 1;
+          } else {
+            this.subdivideMap[x] =
+              availableKeysCounter[x] >= subdivideListKeys.length;
+          }
+        } else {
+          this.subdivideMap[x] = availableKeys.indexOf(x) >= 0;
+        }
+      });
+      this.subdivideMap = { ...this.subdivideMap };
       if (
         Object.keys(this.subdivideList).length ===
         this.commoditiy.subdivide.length
@@ -139,9 +251,7 @@ wepy.component({
         this.sku = null;
         this.skuChoosed = false;
       }
-      console.log(this.subdivideList);
-      console.log(this.commoditiy.subdivide);
-      console.log(this.skuChoosed);
+      this.subdivideList = { ...this.subdivideList };
     },
     onCartClick(e) {
       this.$emit('add-into-cart', this.commoditiy, this.sku, this.count);
