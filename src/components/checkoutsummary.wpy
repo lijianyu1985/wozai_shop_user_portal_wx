@@ -1,0 +1,55 @@
+<style type="less">
+.cost-container {
+  display: flex;
+  padding: 5px 15px 5px 15px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cost-item {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+</style>
+
+<template>
+  <view class="cost-container">
+    <view class="cost-item">
+      <view class="cost-item-label">
+        商品总额
+      </view>
+      <view class="cost-item-value">
+        ￥{{totalText}}
+      </view>
+    </view>
+    <view class="cost-item">
+      <view class="cost-item-label">
+        快递费
+      </view>
+      <view class="cost-item-value">
+        ￥{{shippingFeeText}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+wepy.component({
+  props: {
+    shippingFee: 0,
+    total: 0,
+  },
+  computed: {
+    shippingFeeText: function() {
+      return (this.shippingFee || 0).toFixed(2);
+    },
+    totalText: function() {
+      return (this.total || 0).toFixed(2);
+    },
+  },
+  data: {},
+});
+</script>
+

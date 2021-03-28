@@ -1,18 +1,24 @@
 <style lang="less">
-.container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 .cell-group {
   width: 100%;
 }
 .cell {
   width: 100%;
+}
+.cell-user-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.cell-nick-name {
+  color: var(--cell-text-color, #323233);
+}
+.cell-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  height: calc(~'100vw * 0.1');
+  width: calc(~'100vw * 0.1');
 }
 </style>
 
@@ -22,17 +28,18 @@
       <van-cell
         center
         class="avatar"
-        title="{{nickName}}"
       >
-        <van-image
-          use-error-slot
-          round
-          width="64rpx"
-          height="64rpx"
-          src="{{ avatarUrl }}"
-        >
-          <text slot="error">加载失败</text>
-        </van-image>
+        <view class="cell-user-info">
+          <view class="cell-nick-name">
+            <open-data
+              type="userNickName"
+              lang="zh_CN"
+            ></open-data>
+          </view>
+          <view class="cell-avatar">
+            <open-data type="userAvatarUrl"></open-data>
+          </view>
+        </view>
       </van-cell>
       <van-cell
         class="cell"
@@ -40,6 +47,13 @@
         is-link
         link-type="navigateTo"
         url="/pages/addresses"
+      />
+      <van-cell
+        class="cell"
+        title="订单"
+        is-link
+        link-type="navigateTo"
+        url="/pages/orders"
       />
     </van-cell-group>
     <van-dialog
@@ -70,9 +84,7 @@ wepy.page({
       }
       this.avatarUrl = e.$wx.detail.userInfo.avatarUrl;
       this.nickName = e.$wx.detail.userInfo.nickName;
-      wx.setStorageSync('avatarUrl', e.$wx.detail.userInfo.avatarUrl);
-      wx.setStorageSync('nickName', e.$wx.detail.userInfo.nickName);
-      AUTH.login(this);
+      AUTH.login(this, e.$wx.detail.userInfo);
     },
     initProfile() {
       req.profile
@@ -87,8 +99,6 @@ wepy.page({
   onLoad() {
     AUTH.checkHasLogined().then((isLogined) => {
       if (isLogined) {
-        this.avatarUrl = wx.getStorageSync('avatarUrl');
-        this.nickName = wx.getStorageSync('nickName');
         this.initProfile();
       } else {
         AUTH.openLoginDialog();

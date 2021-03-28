@@ -1,13 +1,17 @@
 function install(req, request) {
   req.profile = {
-    basic(uid) {
+    basic() {
       const url = `${req.apiUrl}/Client/wxBasic`;
       return request({
         url,
         method: 'POST',
-        data: {
-          uid,
-        },
+      });
+    },
+    defaultAddress() {
+      const url = `${req.apiUrl}/Client/defaultAddress`;
+      return request({
+        url,
+        method: 'GET',
       });
     },
   };

@@ -18,13 +18,15 @@ function install(req, request) {
         data,
       });
     },
-    login(code) {
+    login(code, nickName, avatarUrl) {
       const url = `${req.apiUrl}/Client/wxLogin`;
       return request({
         url,
         method: 'POST',
         data: {
           code,
+          nickName,
+          avatarUrl,
         },
       });
     },

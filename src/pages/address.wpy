@@ -1,13 +1,4 @@
 <style lang="less">
-.container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 .cell-group {
   width: 100%;
 }
@@ -24,30 +15,50 @@
 .address-save-button button {
   width: 100%;
 }
+.area-cell-title {
+  max-width: 90px;
+  min-width: 90px;
+}
+.van-cell .area-cell-value {
+  text-align: left;
+  color: var(--field-input-text-color, #323233);
+}
 </style>
+
 
 <template>
   <div class="container">
     <van-cell-group class="cell-group">
+      <van-cell>
+        <van-checkbox
+          value="{{ default }}"
+          data-key="default"
+          bind:change="onChange"
+        >设为默认</van-checkbox>
+      </van-cell>
       <van-field
-        value="{{ name }}"
         label="姓名"
         placeholder="请输入姓名"
+        value="{{ name }}"
         data-key="name"
         bind:change="onChange"
+        bind:click-input="onChange"
       />
       <van-field
-        value="{{ phone }}"
         label="电话"
         placeholder="请输入电话"
+        value="{{ phone }}"
         data-key="phone"
         bind:change="onChange"
+        bind:click-input="onChange"
       />
       <van-cell
-        title="单元格"
+        title="区域"
         is-link
         value="{{ province }} {{ city }} {{ county }}"
         bind:click="openAreaSelector"
+        title-class="area-cell-title"
+        value-class="area-cell-value"
       />
       <van-field
         value="{{ address }}"
@@ -57,6 +68,7 @@
         placeholder="请输入详细地址"
         data-key="address"
         bind:change="onChange"
+        bind:click-input="onChange"
       />
     </van-cell-group>
     <view class="safe-bottom-box">
@@ -65,7 +77,7 @@
         type="primary"
         block
         bind:click="save"
-      >新增收货地址</van-button>
+      >保存收货地址</van-button>
     </view>
     <van-dialog
       use-slot
@@ -96,6 +108,7 @@ wepy.page({
   data: {
     region: {},
     show: false,
+    default: false,
     province: '',
     city: '',
     county: '',
@@ -103,6 +116,7 @@ wepy.page({
     name: '',
     phone: '',
     address: '',
+    userId: '',
   },
   methods: {
     handleViewTap() {
@@ -129,6 +143,7 @@ wepy.page({
         })
         .then((res) => {
           if (res.success) {
+            this.default = res.data.default;
             this.province = res.data.province;
             this.city = res.data.city;
             this.county = res.data.county;
@@ -150,7 +165,8 @@ wepy.page({
               id: this.id,
               data: {
                 id: this.id,
-                userId: wx.getStorageSync('uid'),
+                default: this.default,
+                userId: this.userId,
                 province: this.province,
                 city: this.city,
                 county: this.county,
@@ -173,7 +189,8 @@ wepy.page({
             .create({
               modelName: 'Address',
               data: {
-                userId: wx.getStorageSync('uid'),
+                userId: this.userId,
+                default: this.default,
                 province: this.province,
                 city: this.city,
                 county: this.county,
@@ -201,6 +218,7 @@ wepy.page({
     if (this.id) {
       this.loadAddress(this.id);
     }
+    this.userId = wx.getStorageSync('uid');
     this.region = region;
   },
 });
@@ -217,6 +235,7 @@ wepy.page({
       "van-area": "~@/components/vant/area",
       "van-dialog": "~@/components/vant/dialog",
       "van-toast": "~@/components/vant/toast",
+      "van-checkbox": "~@/components/vant/checkbox",
     }
 }
 </config>

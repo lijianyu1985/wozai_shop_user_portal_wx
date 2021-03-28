@@ -1,0 +1,214 @@
+<style lang="less">
+.tabs-container {
+  width: 100%;
+}
+</style>
+
+<template>
+  <div class="container">
+    <van-tabs
+      class="tabs-container"
+      active="{{ active }}"
+      bind:change="onChange"
+    >
+      <van-tab
+        title="全部"
+        class="tab-container"
+      >
+        <block
+          wx:for="{{orderList}}"
+          wx:for-item="item"
+          wx:key="index"
+        >
+          <orderitem
+            item="{{item}}"
+            @order-item-click="navToItem"
+            width="{{windowWidth-130}}"
+          />
+        </block>
+      </van-tab>
+      <van-tab
+        title="待支付"
+        class="tab-container"
+      >
+        <block
+          wx:for="{{createdOrders}}"
+          wx:for-item="item"
+          wx:key="index"
+        >
+          <orderitem
+            item="{{item}}"
+            @order-item-click="navToItem"
+            width="{{windowWidth-130}}"
+          />
+        </block>
+      </van-tab>
+      <van-tab
+        title="待收货"
+        class="tab-container"
+      >
+        <block
+          wx:for="{{deliveringOrders}}"
+          wx:for-item="item"
+          wx:key="index"
+        >
+          <orderitem
+            item="{{item}}"
+            @order-item-click="navToItem"
+            width="{{windowWidth-130}}"
+          />
+        </block>
+      </van-tab>
+      <van-tab
+        title="已完成"
+        class="tab-container"
+      >
+        <block
+          wx:for="{{completedOrders}}"
+          wx:for-item="item"
+          wx:key="index"
+        >
+          <orderitem
+            item="{{item}}"
+            @order-item-click="navToItem"
+            width="{{windowWidth-130}}"
+          />
+        </block>
+      </van-tab>
+      <van-button
+        wx:if="{{showHasMore}}"
+        type="default"
+        bind:click="loadMore"
+      >默认按钮</van-button>
+    </van-tabs>
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import req from '../req';
+import AUTH from '../utils/auth';
+import { orderStatusMap } from '../utils/const';
+
+wepy.page({
+  props: {
+    type: 'order',
+  },
+  data: {
+    active: 0,
+    orderList: [],
+    createdOrders: [],
+    deliveringOrders: [],
+    completedOrders: [],
+    hasMore: [true, true, true, true],
+    pageSize: 10,
+    page: [1, 1, 1, 1],
+    userId: '',
+    windowWidth: 0,
+  },
+  computed: {
+    showHasMore: function() {
+      return this.hasMore[this.active.index || 0];
+    },
+  },
+  methods: {
+    onChange(event) {
+      this.active = event.$wx.detail;
+      this.loadOrderList(this.active.index || 0, false);
+    },
+    loadMore: function(e) {
+      this.loadOrderList(this.active.index || 0, true);
+    },
+    loadOrderList: function(index, loadMore = true) {
+      const propsMap = [
+        'orderList',
+        'createdOrders',
+        'deliveringOrders',
+        'completedOrders',
+      ];
+      const statusMap = [
+        '',
+        orderStatusMap.Created,
+        orderStatusMap.Delivering,
+        orderStatusMap.Completed,
+      ];
+      if (loadMore) {
+        if (!this.hasMore[index]) {
+          return;
+        }
+      } else {
+        if ((this[propsMap[index]] || []).length) {
+          return;
+        }
+      }
+      req.order
+        .page({
+          status: statusMap[index],
+          page: loadMore ? this.page[index] + 1 : this.page[index],
+          size: this.pageSize,
+        })
+        .then((res) => {
+          if (res && res.success) {
+            this[propsMap[index]] = (this[propsMap[index]] || []).concat(
+              res.list
+            );
+            this.hasMore[index] =
+              res.total > (this[propsMap[index]] || []).length;
+            this.hasMore = [...this.hasMore];
+            this.page[index] = res.page;
+          }
+        });
+    },
+    onTitleClick: function(e) {
+      wx.navigateTo({
+        url: '/pages/order?id=' + e.currentTarget.dataset.id,
+      });
+    },
+    processLogin(e) {
+      if (!e.$wx.detail.userInfo) {
+        wx.showToast({
+          title: '已取消',
+          icon: 'none',
+        });
+        return;
+      }
+      AUTH.register(this);
+    },
+  },
+  onShow() {
+    AUTH.checkHasLogined().then((isLogined) => {
+      if (isLogined) {
+        this.loadOrderList();
+      } else {
+        wx.navigateBack({});
+      }
+    });
+  },
+  onLoad() {
+    let that = this;
+    wx.getSystemInfo({
+      success: function(res) {
+        that.windowHeight = res.windowHeight;
+        that.windowWidth = res.windowWidth;
+      },
+    });
+    this.userId = wx.getStorageSync('uid');
+    this.loadOrderList(0, false);
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-icon": "~@/components/vant/icon",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-tabs": "~@/components/vant/tabs",
+      "van-tab": "~@/components/vant/tab",
+      "orderitem": "~@/components/orderitem",
+    }
+}
+</config>

@@ -34,7 +34,7 @@
       />
     </block>
     <view class="bottom-checkout-button-container">
-      <view class="bottom-checkout-total">合计：￥{{total}}</view>
+      <view class="bottom-checkout-total">合计：￥{{totalAllText}}</view>
       <van-button
         bind:click="onCheckoutClick"
         disabled="{{disableCheckout}}"
@@ -42,6 +42,10 @@
         type="primary"
       >结算</van-button>
     </view>
+    <van-dialog
+      id="van-dialog-auth-login"
+      bind:getuserinfo="processLogin"
+    />
   </view>
 </template>
 
@@ -50,6 +54,8 @@ import wepy from '@wepy/core';
 import store from '../store';
 import { mapState, mapActions } from '@wepy/redux';
 import { ADDINTOCART, REMOVEFROMCART } from '../store/types';
+import AUTH from '../utils/auth';
+import req from '../req';
 
 wepy.page({
   store,
@@ -58,6 +64,8 @@ wepy.page({
   },
   data: {
     windowWidth: 0,
+    userId: '',
+    order: {},
   },
   computed: {
     ...mapState(['cart']),
@@ -72,13 +80,14 @@ wepy.page({
       }
       return total;
     },
+    totalAllText: function() {
+      return this.total.toFixed(2);
+    },
     disableCheckout: function() {
       return !this.cart.cartItems.find((x) => x.checked);
     },
-  },
-  watch: {
-    'cart.cartItems': function(newVal, oldVal) {
-      console.log(newVal);
+    cartItems: function() {
+      return this.cart.cartItems.filter((x) => x.checked);
     },
   },
   methods: {
@@ -86,12 +95,66 @@ wepy.page({
       addIntoCart: ADDINTOCART,
       removeFromCart: REMOVEFROMCART,
     }),
-    onCheckoutClick() {
-      //选择地址，跳转支付，回调然后保存订单
-      console.log(this.cart.cartItems);
+    createOrder(createdCallback) {
+      if (!this.disableCheckout) {
+        req.order
+          .create({
+            commodityItems: this.cartItems.map((x) => {
+              return {
+                count: x.count,
+                commodity: {
+                  _id: x.commodity.id,
+                  name: x.commodity.name,
+                  photo: x.commodity.photo,
+                  priceRange: x.commodity.priceRange,
+                },
+                sku: {
+                  _id: x.sku._id,
+                  amount: x.sku.amount,
+                  code: x.sku.code,
+                  commodityId: x.sku.commodityId,
+                  price: x.sku.price,
+                  subdivide: x.sku.subdivide,
+                },
+              };
+            }),
+          })
+          .then((res) => {
+            createdCallback(res);
+          });
+      }
     },
-    handleViewTap() {
-      console.log('handleVieTap clicked');
+    processLogin(e) {
+      if (!e.$wx.detail.userInfo) {
+        wx.showToast({
+          title: '已取消',
+          icon: 'none',
+        });
+        return;
+      }
+      AUTH.login(this, e.$wx.detail.userInfo);
+    },
+    onCheckoutClick(e) {
+      if (!this.disableCheckout) {
+        AUTH.checkHasLogined().then((isLogined) => {
+          if (isLogined) {
+            this.createOrder((res) => {
+              if (res && res.success) {
+                wx.navigateTo({
+                  url: '/pages/checkout',
+                  success: function(pageOpenRes) {
+                    pageOpenRes.eventChannel.emit('acceptOrderFromCart', {
+                      order: res.order,
+                    });
+                  },
+                });
+              }
+            });
+          } else {
+            AUTH.openLoginDialog();
+          }
+        });
+      }
     },
     refreshItemIntoCart(commodity, sku, count, checked) {
       this.addIntoCart({
@@ -118,9 +181,6 @@ wepy.page({
       }
     },
   },
-  onReady: function() {
-    console.log(this.cart);
-  },
   onLoad() {
     let that = this;
     wx.getSystemInfo({
@@ -129,6 +189,7 @@ wepy.page({
         that.windowWidth = res.windowWidth;
       },
     });
+    this.userId = wx.getStorageSync('uid');
   },
 });
 </script>
@@ -139,6 +200,7 @@ wepy.page({
     "usingComponents": {
       "van-button": "~@/components/vant/button",
       "cartitem": "~@/components/cartitem",
+      "van-dialog": "~@/components/vant/dialog",
     }
 }
 </config>

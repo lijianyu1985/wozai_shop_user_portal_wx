@@ -26,7 +26,8 @@ async function checkHasLogined() {
     return false;
   }
   const checkTokenRes = await req.auth.checkToken(token);
-  if (checkTokenRes.code != 0) {
+  console.log(checkTokenRes);
+  if (!checkTokenRes.success) {
     wx.removeStorageSync('token');
     return false;
   }
@@ -64,38 +65,42 @@ async function getUserInfo() {
   });
 }
 
-async function login(page) {
+async function login(page, userInfo) {
   const _this = this;
 
   wx.login({
     success: function (res) {
       //后太默认注册
-      req.auth.login(res.code).then(function (res) {
-        if (res.code == 10000) {
-          // 去注册
-          //_this.register(page)
-          return;
-        }
-        if (res.code != 0) {
-          // 登录错误
-          wx.showModal({
-            title: '无法登录',
-            content: res.msg || '登录错误',
-            showCancel: false,
-            success() {
-              wx.redirectTo({
-                url: '/pages/categories',
-              });
-            },
-          });
-          return;
-        }
-        wx.setStorageSync('token', res.data.token);
-        wx.setStorageSync('uid', res.data.uid);
-        if (page) {
-          page.$wx.onShow();
-        }
-      });
+      req.auth
+        .login(res.code, userInfo.nickName, userInfo.avatarUrl)
+        .then(function (resBackend) {
+          if (resBackend.code == 10000) {
+            // 去注册
+            //_this.register(page)
+            return;
+          }
+          if (resBackend.code != 0) {
+            // 登录错误
+            wx.showModal({
+              title: '无法登录',
+              content: resBackend.msg || '登录错误',
+              showCancel: false,
+              success() {
+                wx.redirectTo({
+                  url: '/pages/categories',
+                });
+              },
+            });
+            return;
+          }
+          wx.setStorageSync('token', resBackend.data.token);
+          wx.setStorageSync('uid', resBackend.data.uid);
+          wx.setStorageSync('session_key', resBackend.data.session_key);
+          wx.setStorageSync('openid', resBackend.data.openid);
+          if (page) {
+            page.$wx.onShow();
+          }
+        });
     },
   });
 }

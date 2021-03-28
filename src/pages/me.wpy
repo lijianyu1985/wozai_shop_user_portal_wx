@@ -1,32 +1,35 @@
 <!-- pages/example.wpy -->
 <style lang="less">
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 </style>
 
 <template>
   <div class="container">
     <panel>
-      <div class="title" slot="title">登录</div>
-      <van-button @tap="requestLogin" size="mini"> 点我发起登录请求 </van-button>
-      <van-button @tap="requestUserInfo" size="mini"> 点我发起用户信息请求 </van-button>
-      <van-button @tap="requestOpenSetting" size="mini"> 点我发起用户信息请求 </van-button>
+      <div
+        class="title"
+        slot="title"
+      >登录</div>
+      <van-button
+        @tap="requestLogin"
+        size="mini"
+      > 点我发起登录请求 </van-button>
+      <van-button
+        @tap="requestUserInfo"
+        size="mini"
+      > 点我发起用户信息请求 </van-button>
+      <van-button
+        @tap="requestOpenSetting"
+        size="mini"
+      > 点我发起用户信息请求 </van-button>
       <van-button open-type="getUserInfo">授权登录</van-button>
     </panel>
   </div>
 </template>
 
 <script>
-import wepy from '@wepy/core'
+import wepy from '@wepy/core';
 
-wepy.page({
-})
+wepy.page({});
 </script>
 
 <config>

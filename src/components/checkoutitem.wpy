@@ -1,17 +1,18 @@
 <style type="less">
-cartitem {
+checkoutitem {
   width: 95%;
   margin: 0px;
   padding-bottom: 10px;
 }
-.cartitem {
-  height: 100%;
+.checkoutitem {
+  height: auto;
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
   box-sizing: border-box;
+  padding: 5px 5px 5px 5px;
 }
 .content {
   display: -webkit-box;
@@ -42,26 +43,20 @@ button.cart-icon-button {
 .cart-item-operation {
   display: flex;
   align-items: flex-end;
-  flex-direction: column;
+  flex-direction: row;
+}
+.cart-item-operation-multip {
+  color: #c8c9cc;
 }
 .subdivide {
   margin-left: 3px;
   color: #c8c9cc;
   font-size: 11px;
 }
-.checkbox {
-  margin-right: 10px;
-}
 </style>
 
 <template>
-  <view class="cartitem">
-    <van-checkbox
-      class="checkbox"
-      value="{{ item.checked }}"
-      bind:change="onChecking"
-    >
-    </van-checkbox>
+  <view class="checkoutitem">
     <image
       cover
       lazy-load
@@ -75,18 +70,10 @@ button.cart-icon-button {
       <view class="price-stepper">
         <view>￥{{price}}</view>
         <view class="cart-item-operation">
-          <van-button
-            bind:click="removeFromCart"
-            custom-class="cart-icon-button"
-            size="small"
-            icon="delete"
-          >
-          </van-button>
-          <van-stepper
-            button-size="24px"
-            value="{{ item.count }}"
-            bind:change="onCountChange"
-          />
+          <view class="cart-item-operation-multip">
+            x
+          </view>
+          {{item.count}}
         </view>
       </view>
     </view>
@@ -106,9 +93,6 @@ wepy.component({
     windowWidth: 0,
   },
   computed: {
-    photo: function() {
-      return '12';
-    },
     price: function() {
       var price = 0;
       if (this.item) {
@@ -126,34 +110,7 @@ wepy.component({
       return subdivide.join(', ');
     },
   },
-  methods: {
-    onCountChange(e) {
-      this.$emit(
-        'refresh-into-cart',
-        this.item.commodity,
-        this.item.sku,
-        e.$wx.detail,
-        this.item.checked
-      );
-    },
-    onChecking(e) {
-      this.$emit(
-        'refresh-into-cart',
-        this.item.commodity,
-        this.item.sku,
-        this.item.count,
-        e.$wx.detail
-      );
-    },
-    removeFromCart() {
-      this.$emit(
-        'remove-from-cart',
-        this.item.commodity,
-        this.item.sku,
-        this.count
-      );
-    },
-  },
+  methods: {},
 });
 </script>
 

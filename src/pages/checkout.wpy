@@ -9,6 +9,9 @@
 .bottom-checkout-button-container {
   width: 100%;
   display: flex;
+  height: 44px;
+  border: 2px solid rgb(248, 248, 255);
+  background-color: white;
 }
 .bottom-checkout-total {
   flex-grow: 1;
@@ -17,39 +20,109 @@
   align-self: center;
   color: red;
 }
+.address-container {
+  display: flex;
+  padding: 5px 5px 5px 5px;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.address-container:active {
+  background-color: #e6ebee;
+}
+.address-info-container {
+  display: flex;
+  flex-direction: column;
+}
+.address-container-province {
+  font-size: 10px;
+  opacity: 0.62;
+}
+.address-container-name {
+  font-size: 10px;
+  opacity: 0.62;
+}
+.items-container {
+  width: 100%;
+}
 </style>
 
 <template>
-    <view class="container">
-        <block
-            wx:for="{{cart.cartItems}}"
-            wx:for-item="cartItem"
-            wx:key="index"
+  <view class="container">
+    <view class="items-container">
+      <scroll-view
+        class="items-scroll-view"
+        scroll-y
+        scroll-with-animation="true"
+        style="height:{{windowHeight-48}}px;width:100%;"
+      >
+        <view
+          class="address-container"
+          bind:click="onAddressClick"
         >
-            <cartitem
-                @refresh-into-cart="refreshItemIntoCart"
-                @remove-from-cart="removeItemFromCart"
-                item="{{cartItem}}"
-                width="{{windowWidth-130}}"
-            />
-        </block>
-        <view class="bottom-checkout-button-container">
-            <view class="bottom-checkout-total">合计：￥{{total}}</view>
-            <van-button
-                bind:click="onCheckoutClick"
-                disabled="{{disableCheckout}}"
-                class="bottom-checkout-button"
-                type="primary"
-            >结算</van-button>
+          <view class="address-info-container">
+            <view class="address-container-province">
+              {{address && address.province}}
+              {{address && address.city}}
+              {{address && address.county}}
+            </view>
+            <view class="address-container-address">
+              {{address && address.address}}
+            </view>
+            <view class="address-container-name">
+              {{address && address.name}}
+              {{address && address.phone}}
+            </view>
+          </view>
+          <van-icon name="arrow" />
         </view>
+        <van-divider customStyle="margin: 2px 0px 2px 0px;" />
+        <block
+          wx:for="{{commodityItems}}"
+          wx:for-item="checkoutitem"
+          wx:key="index"
+        >
+          <checkoutitem
+            item="{{checkoutitem}}"
+            width="{{windowWidth-130}}"
+          />
+        </block>
+        <van-divider customStyle="margin: 2px 0px 2px 0px;" />
+        <van-cell-group>
+          <van-field
+            value="{{ description }}"
+            bind:change="onDescriptionChange"
+            label="留言"
+            type="textarea"
+            placeholder="请输入留言"
+            autosize
+            border="{{ false }}"
+          />
+        </van-cell-group>
+        <van-divider customStyle="margin: 2px 0px 2px 0px;" />
+        <checkoutsummary
+          total="{{total}}"
+          shippingFee="{{shippingFee}}"
+        />
+      </scroll-view>
     </view>
+    <view class="bottom-checkout-button-container">
+      <view class="bottom-checkout-total">合计：￥{{totalAllText}}</view>
+      <van-button
+        bind:click="onCheckoutClick"
+        disabled="{{disableCheckout}}"
+        class="bottom-checkout-button"
+        type="primary"
+      >支付</van-button>
+    </view>
+  </view>
 </template>
 
 <script>
 import wepy from '@wepy/core';
 import store from '../store';
 import { mapState, mapActions } from '@wepy/redux';
-import { ADDINTOCART, REMOVEFROMCART } from '../store/types';
+import req from '../req';
+import { shippingFee } from '../utils/settings';
 
 wepy.page({
   store,
@@ -58,70 +131,118 @@ wepy.page({
   },
   data: {
     windowWidth: 0,
+    windowHeight: 0,
+    address: {},
+    total: 0,
+    shippingFee: shippingFee,
+    commodityItems: [],
+    order: {},
+    description: '',
   },
   computed: {
-    ...mapState(['cart']),
     total: function() {
-      let total = 0;
-      for (let i = 0; i < this.cart.cartItems.length; i++) {
-        if (this.cart.cartItems[i].checked) {
-          total =
-            total +
-            this.cart.cartItems[i].count * this.cart.cartItems[i].sku.price;
-        }
+      if (this.order && this.order._id) {
+        return this.order.rate.commodityCost;
       }
-      return total;
+      return 0;
+    },
+    totalAllText: function() {
+      const total = this.total + this.shippingFee;
+      return total.toFixed(2);
     },
     disableCheckout: function() {
-      return !this.cart.cartItems.find((x) => x.checked);
+      if (this.order && this.order._id) {
+        return !this.order.commodityItems.length;
+      }
+      return true;
     },
-  },
-  watch: {
-    'cart.cartItems': function(newVal, oldVal) {
-      console.log(newVal);
+    commodityItems: function() {
+      if (this.order && this.order._id) {
+        return this.order.commodityItems;
+      }
+      return [];
     },
   },
   methods: {
-    ...mapActions({
-      addIntoCart: ADDINTOCART,
-      removeFromCart: REMOVEFROMCART,
-    }),
-    onCheckoutClick() {
+    onDescriptionChange(e) {
+      this.description = e.$wx.detail;
+    },
+    loadOrder(orderId) {
+      req.order.get(this.orderId).then((res) => {
+        if (res && res.success) {
+          this.order = res && res.order;
+          this.loadShippingFee();
+        }
+      });
+    },
+    loadDefaultAddress() {
+      req.profile.defaultAddress(this.userId).then((res) => {
+        this.address = (res && res.address) || {};
+        this.loadShippingFee();
+      });
+    },
+    loadShippingFee() {
+      if (this.address && this.address._id && this.order && this.order._id) {
+        req.order
+          .calculateShippingFee({
+            orderId: this.order._id,
+            areaValue: this.address.areaValue,
+          })
+          .then((res) => {
+            if (res && res.success) {
+              this.shippingFee = res.shippingFee;
+            } else {
+              this.shippingFee = shippingFee;
+            }
+          });
+      }
+    },
+    onAddressClick() {
       //选择地址，跳转支付，回调然后保存订单
-      console.log(this.cart.cartItems);
-    },
-    handleViewTap() {
-      console.log('handleVieTap clicked');
-    },
-    refreshItemIntoCart(commodity, sku, count, checked) {
-      this.addIntoCart({
-        cartItem: {
-          commodity,
-          sku,
-          count,
-          checked,
-        },
-      });
-    },
-    removeItemFromCart(commodity, sku, count) {
-      this.removeFromCart({
-        cartItem: {
-          commodity,
-          sku,
-          count,
-        },
-      });
-      if (this.cart.cartItems.length === 0) {
-        wx.removeTabBarBadge({
-          index: 1,
+      const that = this;
+      if (!this.disableCheckout) {
+        wx.navigateTo({
+          url: '/pages/addresses?type=select',
+          events: {
+            selected: function(data) {
+              that.address = (data && data.address) || {};
+              that.loadShippingFee();
+            },
+          },
         });
+      }
+    },
+    onCheckoutClick() {
+      if (!this.disableCheckout) {
+        //更新订单地址，成功后调用支付接口进行支付，支付成功后修改订单状态
+        req.order
+          .updateAddressAndDes({
+            id: this.order._id,
+            description: this.description,
+            address: this.address,
+            shippingFee: this.shippingFee,
+          })
+          .then((res) => {
+            if (res && res.success) {
+              const payment = res.payment;
+              wx.requestPayment({
+                ...payment,
+                success(res) {
+                  console.log('pay success', res);
+                },
+                fail(err) {
+                  console.error('pay fail', err);
+                },
+              });
+            }
+          });
       }
     },
   },
   onReady: function() {
-    console.log(this.cart);
+    this.loadDefaultAddress();
   },
-  onLoad() {
+  onLoad(options) {
     let that = this;
     wx.getSystemInfo({
       success: function(res) {
@@ -129,6 +250,14 @@ wepy.page({
         that.windowWidth = res.windowWidth;
       },
     });
+    this.userId = wx.getStorageSync('uid');
+    const eventChannel = this.$wx.getOpenerEventChannel();
+    eventChannel.on('acceptOrderFromCart', function(data) {
+      that.order = data.order;
+    });
+    if (options.orderId) {
+      this.loadOrder(options.orderId);
+    }
   },
 });
 </script>
@@ -138,7 +267,11 @@ wepy.page({
     "navigationBarTitleText": "老三家",
     "usingComponents": {
       "van-button": "~@/components/vant/button",
-      "cartitem": "~@/components/cartitem",
+      "van-divider": "~@/components/vant/divider",
+      "van-icon": "~@/components/vant/icon",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-field": "~@/components/vant/field",
+      "checkoutitem": "~@/components/checkoutitem",
+      "checkoutsummary": "~@/components/checkoutsummary",
     }
 }
-</config>

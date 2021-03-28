@@ -38,7 +38,7 @@ button.cart-icon-button {
 
 <template>
   <view class="commodityitem">
-    <navigator url="/pages/commodity?id={{itemId}}">
+    <navigator url="/pages/commodity?id={{itemid}}">
       <image
         cover
         lazy-load
@@ -48,7 +48,7 @@ button.cart-icon-button {
       />
     </navigator>
     <view style="width:95%;height:{{width*0.32}}px;">
-      <navigator url="/pages/commodity?id={{itemId}}">
+      <navigator url="/pages/commodity?id={{itemid}}">
         <text class="content">{{name}}</text>
       </navigator>
       <view class="price-stepper">

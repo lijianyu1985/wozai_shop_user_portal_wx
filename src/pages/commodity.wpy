@@ -1,16 +1,5 @@
 <!-- pages/example.wpy -->
 <style lang="less">
-page {
-  background-color: #F5F5F5;
-}
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 .item-container {
   display: flex;
   align-items: left;
@@ -73,7 +62,7 @@ page {
   margin-top: 10rpx;
   margin-bottom: 10rpx;
 }
-.store{
+.store {
   display: flex;
   flex-direction: row;
   align-items: left;
@@ -93,7 +82,7 @@ page {
 .details {
   padding-top: 10rpx;
 }
-.details-title{
+.details-title {
   padding-left: 15rpx;
   padding-top: 10rpx;
 }
@@ -109,10 +98,23 @@ page {
 <template>
   <div class="container">
     <view class="swiper-container">
-      <swiper class="swiper" indicator-dots autoplay interval="2000" duration="500">
-        <block wx:for="{{commodity.photos}}" wx:key="*this">
+      <swiper
+        class="swiper"
+        indicator-dots
+        autoplay
+        interval="2000"
+        duration="500"
+      >
+        <block
+          wx:for="{{commodity.photos}}"
+          wx:key="*this"
+        >
           <swiper-item>
-             <image class="swiper-image" src="{{item}}" data-src="{{item}}" />
+            <image
+              class="swiper-image"
+              src="{{item}}"
+              data-src="{{item}}"
+            />
           </swiper-item>
         </block>
       </swiper>
@@ -125,29 +127,52 @@ page {
       <text class="title">{{commodity.name}}</text>
     </view>
     <view class="services-container item-container ">
-      <van-cell customStyle="padding-bottom:15rpx;padding-top:15rpx;" class="link-item" title="服务项目" size="large" is-link />
+      <van-cell
+        customStyle="padding-bottom:15rpx;padding-top:15rpx;"
+        class="link-item"
+        title="服务项目"
+        size="large"
+        is-link
+      />
     </view>
     <view class="comments-container item-container ">
-      <van-cell customStyle="padding-bottom:15rpx;padding-top:15rpx;" class="link-item" title="评价" size="large" is-link />
+      <van-cell
+        customStyle="padding-bottom:15rpx;padding-top:15rpx;"
+        class="link-item"
+        title="评价"
+        size="large"
+        is-link
+      />
     </view>
     <view class="store-container item-container">
-      <van-cell customStyle="" class="link-item" size="large" is-link  >
-        <view class="store" slot="title">
-        <view style="height:55rpx;width:55rpx;">
-          <van-image
-            round
-            cover
-            width="100%"
-            height="100%"
-            src="https://img.yzcdn.cn/vant/cat.jpeg"
-          />
-        </view>
+      <van-cell
+        customStyle=""
+        class="link-item"
+        size="large"
+        is-link
+      >
+        <view
+          class="store"
+          slot="title"
+        >
+          <view style="height:55rpx;width:55rpx;">
+            <van-image
+              round
+              cover
+              width="100%"
+              height="100%"
+              src="https://img.yzcdn.cn/vant/cat.jpeg"
+            />
+          </view>
         </view>
       </van-cell>
     </view>
     <view class="details-container item-container ">
       <text class="details-title">商品详情</text>
-      <rich-text class="details" nodes="{{commodity.description}}"></rich-text>
+      <rich-text
+        class="details"
+        nodes="{{commodity.description}}"
+      ></rich-text>
     </view>
   </div>
 </template>
@@ -158,25 +183,25 @@ import req from '../req';
 import { buildPictureUrl } from '../utils/tools';
 
 wepy.page({
-  onShareAppMessage: function (res) {
+  onShareAppMessage: function(res) {
     return {
       title: this.commodity.name,
-      path: '/pages/commodity?id='+this.commodity._id
-    }
+      path: '/pages/commodity?id=' + this.commodity._id,
+    };
   },
-  onShow:function(){
+  onShow: function() {
     wx.hideHomeButton();
   },
   data: {
-    id:null,
+    id: null,
     commodity: {
       photos: [],
     },
     title: '商品名称',
-    priceRange: '0-0'
+    priceRange: '0-0',
   },
   onLoad({ id }) {
-    this.id=id;
+    this.id = id;
     this.getCommodityInfo(id);
   },
   methods: {
@@ -187,7 +212,7 @@ wepy.page({
       this.commodity = commodity;
     },
     getCommodityInfo(id) {
-      console.log('请稍后...'+id);
+      console.log('请稍后...' + id);
       wx.showLoading({ title: '请稍后...', icon: 'loading', mask: true });
       req.commodity
         .getDetails({

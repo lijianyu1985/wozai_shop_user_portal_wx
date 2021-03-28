@@ -1,48 +1,54 @@
 <style lang="less">
-  .container {
-    background-color: #ffffff;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-  }
-  .item-container {
-    display: flex;
-    align-items: left;
-    box-sizing: border-box;
-    width: 100%;
-    background-color: #ffffff;
-    margin-top: 10rpx;
-    margin-bottom: 10rpx;
-  }
-  .banner {
-    width: 100%;
-  }
-  .swiper-container {
-    width: 100%;
-  }
-  .swiper {
-    width: 100%;
-    height: 620rpx;
-  }
-  .swiper-full {
-    width: 100%;
-    height: 100%;
-  }
+.item-container {
+  display: flex;
+  align-items: left;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #ffffff;
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
+}
+.banner {
+  width: 100%;
+}
+.swiper-container {
+  width: 100%;
+}
+.swiper {
+  width: 100%;
+  height: 620rpx;
+}
+.swiper-full {
+  width: 100%;
+  height: 100%;
+}
 </style>
 
 <template>
   <div class="container">
     <div class="banner">
       <view class="swiper-container">
-        <swiper class="swiper" indicator-dots autoplay interval="2000" duration="500">
-          <block wx:for="{{banners}}" wx:key="*this">
+        <swiper
+          class="swiper"
+          indicator-dots
+          autoplay
+          interval="2000"
+          duration="500"
+        >
+          <block
+            wx:for="{{banners}}"
+            wx:key="*this"
+          >
             <swiper-item class="swiper-full">
-              <navigator class="swiper-full" url="/pages/commodity?id={{item.commodityId}}">
-                <image class="swiper-full" src="{{item.commodityPhoto}}" data-src="{{item.commodityPhoto}}" />
+              <navigator
+                class="swiper-full"
+                url="/pages/commodity?id={{item.commodityId}}"
+              >
+                <image
+                  class="swiper-full"
+                  src="{{item.commodityPhoto}}"
+                  data-src="{{item.commodityPhoto}}"
+                />
               </navigator>
             </swiper-item>
           </block>
@@ -56,61 +62,58 @@
 </template>
 
 <script>
-  import wepy from '@wepy/core';
-  import req from '../req';
-  import {
-    buildPictureUrl
-  } from '../utils/tools';
-  wepy.page({
-    data: {
-      banners: [],
-      indicatorDots: true,
-      autoplay: true,
-      interval: 2000,
-      duration: 500
+import wepy from '@wepy/core';
+import req from '../req';
+import { buildPictureUrl } from '../utils/tools';
+wepy.page({
+  data: {
+    banners: [],
+    indicatorDots: true,
+    autoplay: true,
+    interval: 2000,
+    duration: 500,
+  },
+  onLoad() {
+    this.getBanner();
+  },
+  methods: {
+    setBanners(banners) {
+      banners = (banners || []).map((x) => {
+        x.commodityPhoto = buildPictureUrl(x.commodityPhoto);
+        return x;
+      });
+      this.banners = banners;
     },
-    onLoad() {
-      this.getBanner();
-    },
-    methods: {
-      setBanners(banners) {
-        banners = (banners || []).map((x) => {
-          x.commodityPhoto = buildPictureUrl(x.commodityPhoto);
-          return x;
-        });
-        this.banners = banners;
-      },
-      getBanner() {
-        wx.showLoading({
-          title: '请稍后...',
-          icon: 'loading',
-          mask: true
-        });
-        req.main
-          .getBanners()
-          .then((res) => {
-            if (res.success) {
-              this.setBanners(res.banners);
-            } else {
-              wx.showToast({
-                title: '信息获取失败',
-                icon: 'none'
-              });
-            }
-            wx.hideLoading();
-          })
-          .catch((e) => {
-            wx.hideLoading();
+    getBanner() {
+      wx.showLoading({
+        title: '请稍后...',
+        icon: 'loading',
+        mask: true,
+      });
+      req.main
+        .getBanners()
+        .then((res) => {
+          if (res.success) {
+            this.setBanners(res.banners);
+          } else {
             wx.showToast({
               title: '信息获取失败',
-              icon: 'none'
+              icon: 'none',
             });
+          }
+          wx.hideLoading();
+        })
+        .catch((e) => {
+          wx.hideLoading();
+          wx.showToast({
+            title: '信息获取失败',
+            icon: 'none',
           });
-      },
+        });
     },
-    onShow: function() {
-    }
-  });
+  },
+  onShow: function() {},
+});
 </script>
 
 <config>

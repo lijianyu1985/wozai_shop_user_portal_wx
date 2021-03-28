@@ -1,13 +1,4 @@
 <style lang="less">
-.container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 .cell-group {
   width: 100%;
 }
@@ -31,10 +22,11 @@
       wx:key="id"
     >
       <van-cell
+        class="cell"
         border="{{ false }}"
         title="{{item.name}} {{item.phone}}"
         label="{{item.province}} {{item.city}} {{item.county}} {{item.address}}"
-        bind:click="editAddess"
+        bind:click="onTitleClick"
         data-id="{{item._id}}"
       />
       <van-icon
@@ -63,6 +55,9 @@ import req from '../req';
 import AUTH from '../utils/auth';
 
 wepy.page({
+  props: {
+    type: 'address',
+  },
   data: { addressList: [] },
   methods: {
     loadAddressList: function(e) {
@@ -72,7 +67,6 @@ wepy.page({
           query: `{"userId":"${wx.getStorageSync('uid')}"}`,
         })
         .then((res) => {
-          console.log(res.list);
           this.addressList = res.list;
         });
     },
@@ -85,6 +79,25 @@ wepy.page({
       wx.navigateTo({
         url: '/pages/address?id=' + e.currentTarget.dataset.id,
       });
+    },
+    onTitleClick: function(e) {
+      if (this.type === 'select') {
+        const eventChannel = this.$wx.getOpenerEventChannel();
+        const address = this.addressList.find(
+          (x) => x._id === e.currentTarget.dataset.id
+        );
+        wx.navigateBack({
+          success: function() {
+            if (eventChannel) {
+              eventChannel.emit('selected', { address });
+            }
+          },
+        });
+      } else {
+        wx.navigateTo({
+          url: '/pages/address?id=' + e.currentTarget.dataset.id,
+        });
+      }
     },
     processLogin(e) {
       if (!e.$wx.detail.userInfo) {
@@ -105,6 +118,21 @@ wepy.page({
         wx.navigateBack({});
       }
     });
+  },
+  onLoad(options) {
+    // console.log(this);
+    // if (options && options.type) {
+    //   this.type = options.type;
+    //   if (options.type === 'select') {
+    //     const eventChannel = this.$wx.getOpenerEventChannel();
+    //     eventChannel.emit('acceptDataFromOpenedPage', { data: 'test' });
+    //     eventChannel.emit('someEvent', { data: 'test' });
+    //     // 监听acceptDataFromOpenerPage事件，获取上一页面通过eventChannel传送到当前页面的数据
+    //     eventChannel.on('acceptDataFromOpenerPage', function(data) {
+    //       console.log(data);
+    //     });
+    //   }
+    // }
   },
 });
 </script>

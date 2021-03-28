@@ -1,40 +1,28 @@
 <style lang="less">
-page {
-  background-color: #F5F5F5;
-}
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
 </style>
 <template>
-  <div class="container">    
+  <div class="container">
   </div>
 </template>
 
 <script>
-  import wepy from '@wepy/core'
-  import eventHub from '../common/eventHub';
-  import { mapState } from '@wepy/redux';
-  import store from '../store';
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import { mapState } from '@wepy/redux';
+import store from '../store';
 
-  wepy.page({
-    store,
-    config: {
-      navigationBarTitleText: 'test'
+wepy.page({
+  store,
+  config: {
+    navigationBarTitleText: 'test',
+  },
+  data: {},
+  methods: {
+    handleViewTap() {
+      console.log('handleVieTap clicked');
     },
-    data: {
-    },
-    methods: {
-      handleViewTap () {
-        console.log('handleVieTap clicked');
-      },
-    },
-  });
+  },
+});
 </script>
 <config>
 {

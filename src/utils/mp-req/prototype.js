@@ -1,5 +1,7 @@
-const sessionStorageKey = 'mp-req-session-id';
+const sessionStorageKey = 'session_key';
 let sessionId = wx.getStorageSync(sessionStorageKey);
+const tokenStorageKey = 'token';
+let token = wx.getStorageSync(tokenStorageKey);
 const loginQueue = [];
 let isLoginning = false;
 
@@ -7,13 +9,15 @@ const req = {
   apiUrl: '',
   code2sessionId: null,
   isSessionAvailable: null,
-  sessionHeaderKey: 'sessionId',
+  sessionHeaderKey: 'session_key',
+  errorHandler: (response) => console.log(response),
   init(opt = {}) {
     const {
       apiUrl,
       code2sessionId,
       isSessionAvailable,
       sessionHeaderKey,
+      errorHandler,
     } = opt;
     if (apiUrl) {
       req.apiUrl = apiUrl;
@@ -26,6 +30,9 @@ const req = {
     }
     if (sessionHeaderKey) {
       req.sessionHeaderKey = sessionHeaderKey;
+    }
+    if (errorHandler) {
+      req.errorHandler = errorHandler;
     }
   },
 };
@@ -43,25 +50,28 @@ function isHttpSuccess(status) {
  * @param {object} options {}
  */
 function requestP(options = {}) {
-  const {
-    success,
-    fail,
-  } = options;
+  const { success, fail } = options;
   // 统一注入约定的header
-  const header = Object.assign({
-    [req.sessionHeaderKey]: sessionId,
-    'app_scope':'wx'
-  }, options.header);
+  if (!token) {
+    token = wx.getStorageSync(tokenStorageKey);
+  }
+  const header = Object.assign(
+    {
+      [req.sessionHeaderKey]: sessionId,
+      app_scope: 'wx',
+      authorization: token,
+    },
+    options.header
+  );
 
   return new Promise((res, rej) => {
-    wx.request(Object.assign(
-      {},
-      options,
-      {
+    wx.request(
+      Object.assign({}, options, {
         header,
         success(r) {
           const isSuccess = isHttpSuccess(r.statusCode);
-          if (isSuccess) { // 成功的请求状态
+          if (isSuccess) {
+            // 成功的请求状态
             if (success) {
               success(r.data);
               return;
@@ -86,8 +96,8 @@ function requestP(options = {}) {
           }
           rej(err);
         },
-      },
-    ));
+      })
+    );
   });
 }
 
@@ -105,7 +115,8 @@ function login() {
             rej('code2sessionId未定义');
             return;
           }
-          req.code2sessionId(r1.code)
+          req
+            .code2sessionId(r1.code)
             .then((r2) => {
               const newSessionId = r2;
               sessionId = newSessionId; // 更新sessionId
@@ -171,6 +182,7 @@ function request(options = {}, keepLogin = true) {
           // 获取sessionId成功之后，发起请求
           requestP(options)
             .then((r2) => {
+              req.errorHandler(r2);
               if (!req.isSessionAvailable) {
                 rej('isSessionAvailable未定义');
                 return;
@@ -183,16 +195,17 @@ function request(options = {}, keepLogin = true) {
                 sessionId = '';
                 getSessionId()
                   .then(() => {
-                    requestP(options)
-                      .then(res)
-                      .catch(rej);
+                    requestP(options).then(res).catch(rej);
                   })
                   .catch(rej);
               } else {
                 res(r2);
               }
             })
-            .catch(rej);
+            .catch((err) => {
+              req.errorHandler(err);
+              rej(err);
+            });
         })
         .catch(rej);
     });
