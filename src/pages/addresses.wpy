@@ -11,6 +11,7 @@
   align-items: center;
   padding-right: 32rpx;
   border-bottom: solid 2rpx #eeeeee;
+  background-color: var(--cell-background-color, #fff);
 }
 </style>
 

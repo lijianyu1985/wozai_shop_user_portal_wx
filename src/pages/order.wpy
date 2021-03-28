@@ -1,0 +1,282 @@
+<style lang="less">
+.address,
+.delivery,
+.status,
+.commodity {
+  display: flex;
+  padding: 5px 15px 5px 15px;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+}
+.address-container-detail {
+  font-size: 10px;
+  opacity: 0.62;
+}
+.basic,
+.commodities,
+.rate {
+  width: 100%;
+  background-color: #fff;
+  margin-top: 8px;
+}
+.divider {
+  width: 100%;
+}
+.delivery-number {
+}
+.delivery-detail {
+  font-size: 10px;
+  opacity: 0.62;
+}
+.status-number {
+}
+.status-status,
+.status-description-text {
+  font-size: 10px;
+  opacity: 0.62;
+}
+.commodities {
+  background-color: #fdfbfb;
+}
+.commodities-title {
+  padding: 8px 15px 8px 15px;
+  background-color: #fff;
+}
+.rate-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 15px 8px 15px;
+}
+.bottom {
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+}
+.body {
+  margin-bottom: 45px;
+}
+</style>
+
+<template>
+    <view class="container">
+        <view class="body">
+            <div class="basic">
+                <div class="status">
+                    <div class="status-number">
+                        订单号：{{order.orderNumber}}
+                    </div>
+                    <div class="status-status">
+                        订单状态：{{order.status}}
+                    </div>
+                    <div
+                        wx:if="{{order.description}}"
+                        class="status-description"
+                    >
+                        <div class="status-description-label">
+                            备注：
+                        </div>
+                        <div class="status-description-text">
+                            {{order.description}}
+                        </div>
+                    </div>
+                </div>
+                <van-divider
+                    class="divider"
+                    custom-style="margin: 2px 10px 2px 10px;width:auto;"
+                />
+                <div class="delivery">
+                    <div class="delivery-number">
+                        快递单号：
+                    </div>
+                    <div class="delivery-detail">
+                        暂无物流信息
+                    </div>
+                </div>
+                <van-divider
+                    class="divider"
+                    custom-style="margin: 2px 10px 2px 10px;width:auto;"
+                />
+                <view class="address">
+                    <view class="address-container-name">
+                        {{order.address && order.address.name}}
+                        {{order.address && order.address.phone}}
+                    </view>
+                    <view class="address-container-detail">
+                        {{order.address && order.address.province}}
+                        {{order.address && order.address.city}}
+                        {{order.address && order.address.county}}
+                    </view>
+                    <view class="address-container-detail">
+                        {{order.address && order.address.address}}
+                    </view>
+                </view>
+            </div>
+            <div class="commodities">
+                <view class="commodities-title">
+                    商品信息
+                </view>
+                <view class="commodity">
+                    <block
+                        wx:for="{{order.commodityItems}}"
+                        wx:for-item="checkoutitem"
+                        wx:key="index"
+                    >
+                        <checkoutitem
+                            item="{{checkoutitem}}"
+                            width="{{windowWidth-130}}"
+                        />
+                    </block>
+                </view>
+            </div>
+            <div class="rate">
+                <div class="rate-item">
+                    <div class="rate-label">
+                        商品金额
+                    </div>
+                    <div class="rate-text">
+                        ￥{{commodityCostText}}
+                    </div>
+                </div>
+                <div class="rate-item">
+                    <div class="rate-label">
+                        运费
+                    </div>
+                    <div class="rate-text">
+                        ￥{{shippingFeeText}}
+                    </div>
+                </div>
+                <div class="rate-item">
+                    <div class="rate-label">
+                        应付总额
+                    </div>
+                    <div class="rate-text">
+                        ￥{{totalText}}
+                    </div>
+                </div>
+            </div>
+        </view>
+        <van-button
+            wx:if="{{showContinue}}"
+            class="bottom"
+            bind:click="checkout"
+            type="primary"
+            block
+        >继续</van-button>
+    </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import region from '../utils/region';
+import req from '../req';
+import Toast from '../components/vant/toast/toast';
+import { buildPictureUrl, toDisplayTimestamp } from '../utils/tools';
+import { orderStatusMap } from '../utils/const';
+
+wepy.page({
+  props: {
+    id: '',
+  },
+  data: {
+    order: {},
+    userId: '',
+    windowWidth: 0,
+  },
+  computed: {
+    timestamp: function() {
+      return toDisplayTimestamp(this.order && this.order.createdAt);
+    },
+    totalText: function() {
+      return (
+        this.order &&
+        this.order.rate &&
+        this.order.rate.total &&
+        this.order.rate.total.toFixed(2)
+      );
+    },
+    shippingFeeText: function() {
+      return (
+        this.order &&
+        this.order.rate &&
+        this.order.rate.shippingFee &&
+        this.order.rate.shippingFee.toFixed(2)
+      );
+    },
+    commodityCostText: function() {
+      return (
+        this.order &&
+        this.order.rate &&
+        this.order.rate.commodityCost &&
+        this.order.rate.commodityCost.toFixed(2)
+      );
+    },
+    showContinue: function() {
+      return this.order && this.order.status === orderStatusMap.Created;
+    },
+  },
+  methods: {
+    checkout() {
+      const that = this;
+      wx.navigateTo({
+        url: '/pages/checkout',
+        success: function(pageOpenRes) {
+          pageOpenRes.eventChannel.emit('acceptOrderFromCart', {
+            order: that.order,
+          });
+        },
+      });
+    },
+    loadOrder(id) {
+      req.common
+        .get({
+          modelName: 'Order',
+          id: id,
+        })
+        .then((res) => {
+          if (res.success) {
+            this.order = res.data;
+          } else {
+            Toast('获取失败');
+          }
+        });
+    },
+  },
+  onShow() {
+    if (this.id) {
+      this.loadOrder(this.id);
+    } else {
+      wx.navigateBack({});
+    }
+  },
+  onLoad() {
+    let that = this;
+    wx.getSystemInfo({
+      success: function(res) {
+        that.windowHeight = res.windowHeight;
+        that.windowWidth = res.windowWidth;
+      },
+    });
+    this.userId = wx.getStorageSync('uid');
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-field": "~@/components/vant/field",
+      "van-area": "~@/components/vant/area",
+      "van-dialog": "~@/components/vant/dialog",
+      "van-toast": "~@/components/vant/toast",
+      "van-checkbox": "~@/components/vant/checkbox",
+      "checkoutitem": "~@/components/checkoutitem",
+      "van-divider": "~@/components/vant/divider"
+    }
+}
+</config>

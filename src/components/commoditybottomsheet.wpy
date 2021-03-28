@@ -146,6 +146,23 @@ wepy.component({
       if (subdivideKeys && subdivideKeys.length) {
         this.kindLength = subdivideKeys.length;
       }
+      if (
+        newVal.skus &&
+        newVal.skus.length === 1 &&
+        newVal.skus[0].subdivide &&
+        newVal.skus[0].subdivide.length === 1
+      ) {
+        this.onSubdivideClick({
+          $wx: {
+            target: {
+              dataset: {
+                kind: newVal.skus[0].subdivide[0].kind,
+                value: newVal.skus[0].subdivide[0].value,
+              },
+            },
+          },
+        });
+      }
     },
   },
   methods: {

@@ -2,6 +2,25 @@
 .tabs-container {
   width: 100%;
 }
+.load-more-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+.load-more-divider {
+  display: flex;
+  flex: 1;
+}
+.no-more-label {
+  display: flex;
+  width: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 14px;
+  margin-right: 14px;
+  text-align: center;
+  color: var(--button-default-color, #323233);
+}
 </style>
 
 <template>
@@ -10,6 +29,7 @@
       class="tabs-container"
       active="{{ active }}"
       bind:change="onChange"
+      sticky
     >
       <van-tab
         title="全部"
@@ -27,6 +47,7 @@
           />
         </block>
       </van-tab>
+
       <van-tab
         title="待支付"
         class="tab-container"
@@ -75,11 +96,29 @@
           />
         </block>
       </van-tab>
-      <van-button
-        wx:if="{{showHasMore}}"
-        type="default"
-        bind:click="loadMore"
-      >默认按钮</van-button>
+      <view class="load-more-container">
+        <van-divider
+          class="load-more-divider"
+          customStyle="font-size: 18px;flex:1;"
+        >
+        </van-divider>
+        <van-button
+          wx:if="{{showHasMore}}"
+          type="default"
+          bind:click="loadMore"
+          custom-style="border:none;background-color:transparent;"
+          icon="down"
+        >加载更多...</van-button>
+        <view
+          wx:if="{{!showHasMore}}"
+          class="no-more-label"
+        >没有更多数据...</view>
+        <van-divider
+          class="load-more-divider"
+          customStyle="font-size: 18px;flex:1;"
+        >
+        </van-divider>
+      </view>
     </van-tabs>
   </div>
 </template>
@@ -159,9 +198,9 @@ wepy.page({
           }
         });
     },
-    onTitleClick: function(e) {
+    navToItem: function(item, e) {
       wx.navigateTo({
-        url: '/pages/order?id=' + e.currentTarget.dataset.id,
+        url: '/pages/order?id=' + item._id,
       });
     },
     processLogin(e) {
@@ -209,6 +248,7 @@ wepy.page({
       "van-tabs": "~@/components/vant/tabs",
       "van-tab": "~@/components/vant/tab",
       "orderitem": "~@/components/orderitem",
+      "van-divider": "~@/components/vant/divider"
     }
 }
 </config>

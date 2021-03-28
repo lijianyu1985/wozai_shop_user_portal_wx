@@ -175,11 +175,16 @@ wepy.page({
         }
       });
     },
-    loadDefaultAddress() {
-      req.profile.defaultAddress(this.userId).then((res) => {
-        this.address = (res && res.address) || {};
+    loadDefaultAddress(address) {
+      if (address) {
+        this.address = address;
         this.loadShippingFee();
-      });
+      } else {
+        req.profile.defaultAddress(this.userId).then((res) => {
+          this.address = (res && res.address) || {};
+          this.loadShippingFee();
+        });
+      }
     },
     loadShippingFee() {
       if (this.address && this.address._id && this.order && this.order._id) {
@@ -229,6 +234,7 @@ wepy.page({
                 ...payment,
                 success(res) {
                   console.log('pay success', res);
+                  // 支付成功后修改订单并且清理购物车
                 },
                 fail(err) {
                   console.error('pay fail', err);
@@ -238,9 +244,6 @@ wepy.page({
           });
       }
     },
-  },
-  onReady: function() {
-    this.loadDefaultAddress();
   },
   onLoad(options) {
     let that = this;
@@ -254,6 +257,12 @@ wepy.page({
     const eventChannel = this.$wx.getOpenerEventChannel();
     eventChannel.on('acceptOrderFromCart', function(data) {
       that.order = data.order;
+      if (that.order.address) {
+        that.loadDefaultAddress(that.order.address);
+      } else {
+        that.loadDefaultAddress(that.order.address);
+      }
+      that.description = that.order.description;
     });
     if (options.orderId) {
       this.loadOrder(options.orderId);

@@ -36,9 +36,10 @@ wepy.app({
 <config>
 {
     "pages": [
-      "pages/mine",
-      "pages/orders",
       "pages/categories",
+      "pages/orders",
+      "pages/order",
+      "pages/mine",
       "pages/cart",
       "pages/checkout",
       "pages/address",

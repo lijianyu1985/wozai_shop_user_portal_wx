@@ -48,3 +48,29 @@ export const removeFromArray = (arr, filter) => {
   }
   return arr;
 };
+
+export const toDisplayTimestamp = (timestamp) => {
+  if (!timestamp) {
+    return '';
+  }
+  const timestapDate = new Date(timestamp);
+  if (isNaN(timestapDate.getTime())) {
+    return '';
+  }
+  return `${timestapDate.getFullYear()}-${
+    timestapDate.getMonth() + 1
+  }-${timestapDate.getDate()} ${timestapDate.getHours()}:${timestapDate.getMinutes()}:${timestapDate.getSeconds()}`;
+};
+
+export const toDisplayDate = (timestamp) => {
+  if (!timestamp) {
+    return '';
+  }
+  const timestapDate = new Date(timestamp);
+  if (isNaN(timestapDate.getTime())) {
+    return '';
+  }
+  return `${timestapDate.getFullYear()}-${
+    timestapDate.getMonth() + 1
+  }-${timestapDate.getDate()}`;
+};
