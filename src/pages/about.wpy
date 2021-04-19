@@ -1,0 +1,40 @@
+<style lang="less">
+.text {
+  text-align: center;
+  margin-top: 38%;
+}
+</style>
+
+<template>
+    <div class="container">
+        <text class="text">
+            I am a good man. But I want to be a rich man.
+        </text>
+    </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import AUTH from '../utils/auth';
+import req from '../req';
+
+wepy.page({
+  data: {},
+  methods: {},
+  onShow: function() {},
+  onLoad() {},
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-cell": "~@/components/vant/cell",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-dialog": "~@/components/vant/dialog",
+  "van-image": "~@/components/vant/image"
+    }
+}
+</config>

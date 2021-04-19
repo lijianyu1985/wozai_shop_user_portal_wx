@@ -1,12 +1,14 @@
 <style type="less">
 cartitem {
-  width: 95%;
-  margin: 0px;
+  width: 100%;
+  margin: 0px 0px 5px 0px;
   padding-bottom: 10px;
+  background-color: white;
 }
 .cartitem {
   height: 100%;
   width: 100%;
+  padding: 5px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -71,7 +73,10 @@ button.cart-icon-button {
     />
     <view style="width:95%;">
       <text class="content">{{item.commodity.name}}</text>
-      <text class="subdivide">{{subdivide}}</text>
+      <text
+        wx:if="{{!item.commodity.defaultSubdivide}}"
+        class="subdivide"
+      >{{subdivide}}</text>
       <view class="price-stepper">
         <view>￥{{price}}</view>
         <view class="cart-item-operation">

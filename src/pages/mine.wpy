@@ -55,6 +55,20 @@
         link-type="navigateTo"
         url="/pages/orders"
       />
+      <van-cell
+        class="cell"
+        title="反馈"
+        is-link
+        link-type="navigateTo"
+        url="/pages/feedback"
+      />
+      <van-cell
+        class="cell"
+        title="关于"
+        is-link
+        link-type="navigateTo"
+        url="/pages/about"
+      />
     </van-cell-group>
     <van-dialog
       id="van-dialog-auth-login"
@@ -71,9 +85,6 @@ import req from '../req';
 wepy.page({
   data: { avatarUrl: 'avatarUrl', nickName: '' },
   methods: {
-    handleViewTap() {
-      console.log('handleVieTap clicked');
-    },
     processLogin(e) {
       if (!e.$wx.detail.userInfo) {
         wx.showToast({
@@ -92,14 +103,18 @@ wepy.page({
         .then((res) => {
           console.log(res);
         })
-        .catch();
+        .catch((err) => {
+          if (err.detail.data.statusCode === 401) {
+            AUTH.login(this, {});
+          }
+        });
     },
   },
   onShow: function() {},
   onLoad() {
     AUTH.checkHasLogined().then((isLogined) => {
       if (isLogined) {
-        this.initProfile();
+        //this.initProfile();
       } else {
         AUTH.openLoginDialog();
       }

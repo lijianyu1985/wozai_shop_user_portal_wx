@@ -56,115 +56,116 @@
 }
 .body {
   margin-bottom: 45px;
+  width: 100%;
 }
 </style>
 
 <template>
-    <view class="container">
-        <view class="body">
-            <div class="basic">
-                <div class="status">
-                    <div class="status-number">
-                        订单号：{{order.orderNumber}}
-                    </div>
-                    <div class="status-status">
-                        订单状态：{{order.status}}
-                    </div>
-                    <div
-                        wx:if="{{order.description}}"
-                        class="status-description"
-                    >
-                        <div class="status-description-label">
-                            备注：
-                        </div>
-                        <div class="status-description-text">
-                            {{order.description}}
-                        </div>
-                    </div>
-                </div>
-                <van-divider
-                    class="divider"
-                    custom-style="margin: 2px 10px 2px 10px;width:auto;"
-                />
-                <div class="delivery">
-                    <div class="delivery-number">
-                        快递单号：
-                    </div>
-                    <div class="delivery-detail">
-                        暂无物流信息
-                    </div>
-                </div>
-                <van-divider
-                    class="divider"
-                    custom-style="margin: 2px 10px 2px 10px;width:auto;"
-                />
-                <view class="address">
-                    <view class="address-container-name">
-                        {{order.address && order.address.name}}
-                        {{order.address && order.address.phone}}
-                    </view>
-                    <view class="address-container-detail">
-                        {{order.address && order.address.province}}
-                        {{order.address && order.address.city}}
-                        {{order.address && order.address.county}}
-                    </view>
-                    <view class="address-container-detail">
-                        {{order.address && order.address.address}}
-                    </view>
-                </view>
+  <view class="container">
+    <view class="body">
+      <div class="basic">
+        <div class="status">
+          <div class="status-number">
+            订单号：{{order.orderNumber}}
+          </div>
+          <div class="status-status">
+            订单状态：{{statusText}}
+          </div>
+          <div
+            wx:if="{{order.description}}"
+            class="status-description"
+          >
+            <div class="status-description-label">
+              备注：
             </div>
-            <div class="commodities">
-                <view class="commodities-title">
-                    商品信息
-                </view>
-                <view class="commodity">
-                    <block
-                        wx:for="{{order.commodityItems}}"
-                        wx:for-item="checkoutitem"
-                        wx:key="index"
-                    >
-                        <checkoutitem
-                            item="{{checkoutitem}}"
-                            width="{{windowWidth-130}}"
-                        />
-                    </block>
-                </view>
+            <div class="status-description-text">
+              {{order.description}}
             </div>
-            <div class="rate">
-                <div class="rate-item">
-                    <div class="rate-label">
-                        商品金额
-                    </div>
-                    <div class="rate-text">
-                        ￥{{commodityCostText}}
-                    </div>
-                </div>
-                <div class="rate-item">
-                    <div class="rate-label">
-                        运费
-                    </div>
-                    <div class="rate-text">
-                        ￥{{shippingFeeText}}
-                    </div>
-                </div>
-                <div class="rate-item">
-                    <div class="rate-label">
-                        应付总额
-                    </div>
-                    <div class="rate-text">
-                        ￥{{totalText}}
-                    </div>
-                </div>
-            </div>
+          </div>
+        </div>
+        <van-divider
+          class="divider"
+          custom-style="margin: 2px 10px 2px 10px;width:auto;"
+        />
+        <div class="delivery">
+          <div class="delivery-number">
+            快递单号：
+          </div>
+          <div class="delivery-detail">
+            暂无物流信息
+          </div>
+        </div>
+        <van-divider
+          class="divider"
+          custom-style="margin: 2px 10px 2px 10px;width:auto;"
+        />
+        <view class="address">
+          <view class="address-container-name">
+            {{order.address && order.address.name}}
+            {{order.address && order.address.phone}}
+          </view>
+          <view class="address-container-detail">
+            {{order.address && order.address.province}}
+            {{order.address && order.address.city}}
+            {{order.address && order.address.county}}
+          </view>
+          <view class="address-container-detail">
+            {{order.address && order.address.address}}
+          </view>
         </view>
-        <van-button
-            wx:if="{{showContinue}}"
-            class="bottom"
-            bind:click="checkout"
-            type="primary"
-            block
-        >继续</van-button>
+      </div>
+      <div class="commodities">
+        <view class="commodities-title">
+          商品信息
+        </view>
+        <view class="commodity">
+          <block
+            wx:for="{{order.commodityItems}}"
+            wx:for-item="checkoutitem"
+            wx:key="index"
+          >
+            <checkoutitem
+              item="{{checkoutitem}}"
+              width="{{windowWidth-130}}"
+            />
+          </block>
+        </view>
+      </div>
+      <div class="rate">
+        <div class="rate-item">
+          <div class="rate-label">
+            商品金额
+          </div>
+          <div class="rate-text">
+            ￥{{commodityCostText}}
+          </div>
+        </div>
+        <div class="rate-item">
+          <div class="rate-label">
+            运费
+          </div>
+          <div class="rate-text">
+            ￥{{shippingFeeText}}
+          </div>
+        </div>
+        <div class="rate-item">
+          <div class="rate-label">
+            应付总额
+          </div>
+          <div class="rate-text">
+            ￥{{totalText}}
+          </div>
+        </div>
+      </div>
     </view>
+    <van-button
+      wx:if="{{showContinue}}"
+      class="bottom"
+      bind:click="checkout"
+      type="primary"
+      block
+    >继续</van-button>
+  </view>
 </template>
 
 <script>
@@ -212,8 +213,21 @@ wepy.page({
         this.order.rate.commodityCost.toFixed(2)
       );
     },
+    statusText: function() {
+      return (
+        this.order &&
+        this.order.status &&
+        this.order.status.current &&
+        this.order.status.current.name
+      );
+    },
     showContinue: function() {
-      return this.order && this.order.status === orderStatusMap.Created;
+      return (
+        this.order &&
+        this.order.status &&
+        this.order.status.current &&
+        this.order.status.current.name === orderStatusMap.Created
+      );
     },
   },
   methods: {

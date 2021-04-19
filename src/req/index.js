@@ -25,6 +25,7 @@ function code2sessionId(code) {
       success(r1) {
         if (r1.data && r1.data.success) {
           wx.setStorageSync('token', r1.data.data.token);
+          req.refreshToken(r1.data.data.token);
           wx.setStorageSync('uid', r1.data.data.uid);
           wx.setStorageSync('session_key', r1.data.data.session_key);
           wx.setStorageSync('openid', r1.data.data.openid);
@@ -58,7 +59,6 @@ function errorHandler(response) {
       duration: 2000,
     });
   }
-  console.log(response);
 }
 
 req.init({

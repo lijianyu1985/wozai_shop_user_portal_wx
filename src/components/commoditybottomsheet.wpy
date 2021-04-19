@@ -46,6 +46,7 @@
       price="{{price}}"
     />
     <view
+      wx:if="{{!commoditiy.defaultSubdivide}}"
       wx:for="{{commoditiy.subdivide}}"
       wx:for-item="item"
       wx:key="index"
@@ -132,6 +133,11 @@ wepy.component({
       this.subdivideMap = {};
       this.subdivideMapTotal = {};
       this.price = this.commoditiy.priceRange;
+      if (newVal.defaultSubdivide) {
+        this.sku = newVal.skus[0];
+        this.skuChoosed = true;
+        return;
+      }
       let subdivideKeys = [];
       (newVal.skus || []).forEach((sku, i) => {
         subdivideKeys = [];
@@ -271,7 +277,9 @@ wepy.component({
       this.subdivideList = { ...this.subdivideList };
     },
     onCartClick(e) {
-      this.$emit('add-into-cart', this.commoditiy, this.sku, this.count);
+      if (this.skuChoosed) {
+        this.$emit('add-into-cart', this.commoditiy, this.sku, this.count);
+      }
     },
   },
 });

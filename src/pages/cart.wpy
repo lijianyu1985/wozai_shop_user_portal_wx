@@ -9,13 +9,16 @@
 .bottom-checkout-button-container {
   width: 100%;
   display: flex;
+  background-color: white;
 }
 .bottom-checkout-total {
   flex-grow: 1;
   display: flex;
   margin-left: 10px;
   align-self: center;
-  color: red;
+}
+.cartitem {
+  margin-top: 10px;
 }
 </style>
 
@@ -27,10 +30,11 @@
       wx:key="index"
     >
       <cartitem
+        class="cartitem"
         @refresh-into-cart="refreshItemIntoCart"
         @remove-from-cart="removeItemFromCart"
         item="{{cartItem}}"
-        width="{{windowWidth-130}}"
+        width="{{windowWidth-200}}"
       />
     </block>
     <view class="bottom-checkout-button-container">
@@ -46,6 +50,7 @@
       id="van-dialog-auth-login"
       bind:getuserinfo="processLogin"
     />
+    <van-dialog id="van-dialog" />
   </view>
 </template>
 
@@ -56,6 +61,7 @@ import { mapState, mapActions } from '@wepy/redux';
 import { ADDINTOCART, REMOVEFROMCART } from '../store/types';
 import AUTH from '../utils/auth';
 import req from '../req';
+import Dialog from '../components/vant/dialog/dialog';
 
 wepy.page({
   store,
@@ -95,7 +101,7 @@ wepy.page({
       addIntoCart: ADDINTOCART,
       removeFromCart: REMOVEFROMCART,
     }),
-    createOrder(createdCallback) {
+    createOrder() {
       if (!this.disableCheckout) {
         req.order
           .create({
@@ -107,6 +113,8 @@ wepy.page({
                   name: x.commodity.name,
                   photo: x.commodity.photo,
                   priceRange: x.commodity.priceRange,
+                  weight: x.commodity.weight,
+                  defaultSubdivide: x.commodity.defaultSubdivide,
                 },
                 sku: {
                   _id: x.sku._id,
@@ -120,7 +128,16 @@ wepy.page({
             }),
           })
           .then((res) => {
-            createdCallback(res);
+            if (res && res.success) {
+              wx.navigateTo({
+                url: '/pages/checkout',
+                success: function(pageOpenRes) {
+                  pageOpenRes.eventChannel.emit('acceptOrderFromCart', {
+                    order: res.order,
+                  });
+                },
+              });
+            }
           });
       }
     },
@@ -138,16 +155,31 @@ wepy.page({
       if (!this.disableCheckout) {
         AUTH.checkHasLogined().then((isLogined) => {
           if (isLogined) {
-            this.createOrder((res) => {
-              if (res && res.success) {
-                wx.navigateTo({
-                  url: '/pages/checkout',
-                  success: function(pageOpenRes) {
-                    pageOpenRes.eventChannel.emit('acceptOrderFromCart', {
-                      order: res.order,
+            //检查是否已经有未完成订单
+            req.order.hasCreatedOrder().then((res) => {
+              let createNew = false;
+              if (res.hasCreatedOrder) {
+                //弹框提示
+                Dialog.confirm({
+                  message: '您有未完成的订单，新建订单将删除未完成的订单。',
+                  confirmButtonText: '继续未完成的订单',
+                  cancelButtonText: '新建订单',
+                })
+                  .then(() => {
+                    wx.navigateTo({
+                      url: '/pages/checkout',
+                      success: function(pageOpenRes) {
+                        pageOpenRes.eventChannel.emit('acceptOrderFromCart', {
+                          order: res.order,
+                        });
+                      },
                     });
-                  },
-                });
+                  })
+                  .catch(() => {
+                    this.createOrder();
+                  });
+              } else {
+                this.createOrder();
               }
             });
           } else {
@@ -180,6 +212,17 @@ wepy.page({
         });
       }
     },
+    refreshCartStatus() {
+      if (this.cart.cartItems.length) {
+        wx.setTabBarBadge({
+          index: 1,
+          text: '...',
+        });
+      }
+    },
+  },
+  onShow() {
+    this.refreshCartStatus();
   },
   onLoad() {
     let that = this;

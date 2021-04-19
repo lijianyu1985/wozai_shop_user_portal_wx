@@ -32,6 +32,13 @@ function install(req, request) {
         data,
       });
     },
+    hasCreatedOrder() {
+      const url = `${req.apiUrl}/Wx/Order/HasCreatedOrder`;
+      return request({
+        url,
+        method: 'GET',
+      });
+    },
     page(data) {
       const url = `${req.apiUrl}/Wx/Order/Page`;
       return request({

@@ -61,6 +61,14 @@
         value-class="area-cell-value"
       />
       <van-field
+        label="邮编"
+        placeholder="请输入邮编"
+        value="{{ zipCode }}"
+        data-key="zipCode"
+        bind:change="onChange"
+        bind:click-input="onChange"
+      />
+      <van-field
         value="{{ address }}"
         type="textarea"
         autosize
@@ -115,6 +123,7 @@ wepy.page({
     areaValue: '',
     name: '',
     phone: '',
+    zipCode: '',
     address: '',
     userId: '',
   },
@@ -150,6 +159,7 @@ wepy.page({
             this.areaValue = res.data.areaValue;
             this.name = res.data.name;
             this.phone = res.data.phone;
+            this.zipCode = res.data.zipCode;
             this.address = res.data.address;
           } else {
             Toast('保存失败');
@@ -173,6 +183,7 @@ wepy.page({
                 areaValue: this.areaValue,
                 name: this.name,
                 phone: this.phone,
+                zipCode: this.zipCode,
                 address: this.address,
               },
             })
@@ -197,6 +208,7 @@ wepy.page({
                 areaValue: this.areaValue,
                 name: this.name,
                 phone: this.phone,
+                zipCode: this.zipCode,
                 address: this.address,
               },
             })

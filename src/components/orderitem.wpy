@@ -42,47 +42,47 @@
 </style>
 
 <template>
-    <view class="orderitem">
-        <van-cell
-            clickable
-            title="{{item.orderNumber}}"
-            value="{{item.status}}"
-            class="header"
-            is-link
-            bind:click="onClick"
+  <view class="orderitem">
+    <van-cell
+      clickable
+      title="{{item.orderNumber}}"
+      value="{{statusText}}"
+      class="header"
+      is-link
+      bind:click="onClick"
+    >
+      {{item.orderNumber}}
+    </van-cell>
+    <view class="body">
+      <view class="images">
+        <block
+          wx:for="{{item.commodityItems}}"
+          wx:for-item="item"
+          wx:key="index"
         >
-            {{item.orderNumber}}
-        </van-cell>
-        <view class="body">
-            <view class="images">
-                <block
-                    wx:for="{{item.commodityItems}}"
-                    wx:for-item="item"
-                    wx:key="index"
-                >
-                    <image
-                        class="image"
-                        cover
-                        lazy-load
-                        fit="cover"
-                        style="width:{{width*0.3}}px;height:{{width*0.3}}px;"
-                        src="{{item.commodity.photo}}"
-                    />
-                </block>
-            </view>
-            <view class="total">
-                <view class="total-label">合计：</view>
-                <view class="total-amount">￥{{totalText}}</view>
-            </view>
-        </view>
-        <van-divider
-            class="footer-divider"
-            custom-style="margin: 2px 10px 2px 10px;width:auto;"
-        />
-        <view class="footer">
-            <view class="timestamp">{{timestamp}} </view>
-        </view>
+          <image
+            class="image"
+            cover
+            lazy-load
+            fit="cover"
+            style="width:{{width*0.3}}px;height:{{width*0.3}}px;"
+            src="{{item.commodity.photo}}"
+          />
+        </block>
+      </view>
+      <view class="total">
+        <view class="total-label">合计：</view>
+        <view class="total-amount">￥{{totalText}}</view>
+      </view>
     </view>
+    <van-divider
+      class="footer-divider"
+      custom-style="margin: 2px 10px 2px 10px;width:auto;"
+    />
+    <view class="footer">
+      <view class="timestamp">{{timestamp}} </view>
+    </view>
+  </view>
 </template>
 
 <script>
@@ -103,6 +103,14 @@ wepy.component({
   computed: {
     timestamp: function() {
       return toDisplayTimestamp(this.item && this.item.createdAt);
+    },
+    statusText: function() {
+      return (
+        this.item &&
+        this.item.status &&
+        this.item.status.current &&
+        this.item.status.current.name
+      );
     },
     totalText: function() {
       return (

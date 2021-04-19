@@ -35,6 +35,9 @@ const req = {
       req.errorHandler = errorHandler;
     }
   },
+  refreshToken: (t) => {
+    token = t;
+  },
 };
 
 /**

@@ -1,0 +1,142 @@
+<style lang="less">
+.cell-group {
+  width: 100%;
+}
+.cell {
+  width: 100%;
+}
+.bottom-button {
+  display: flex;
+  width: 100%;
+}
+.bottom-button button {
+  border-radius: 0;
+  width: 100%;
+}
+.bottom-button-container {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 48px;
+}
+</style>
+
+<template>
+  <div class="container">
+    <van-cell-group class="cell-group">
+      <van-field
+        class="cell"
+        required
+        value="{{ name }}"
+        label="姓名"
+        placeholder="请输入姓名"
+        data-key="name"
+        bind:change="onChange"
+        bind:click-input="onChange"
+      />
+      <van-field
+        class="cell"
+        required
+        value="{{ phone }}"
+        label="电话"
+        placeholder="请输入电话"
+        data-key="phone"
+        bind:change="onChange"
+        bind:click-input="onChange"
+      />
+      <van-field
+        class="cell"
+        value="{{ email }}"
+        label="邮箱"
+        placeholder="请输入邮箱"
+        data-key="email"
+        bind:change="onChange"
+        bind:click-input="onChange"
+      />
+      <van-field
+        class="cell"
+        required
+        value="{{ content }}"
+        label="留言"
+        type="textarea"
+        placeholder="请输入留言"
+        autosize
+        data-key="content"
+        bind:change="onChange"
+        bind:click-input="onChange"
+      />
+    </van-cell-group>
+    <view class="bottom-button-container">
+      <van-button
+        bind:click="onPostClick"
+        class="bottom-button"
+        type="primary"
+      >提交</van-button>
+    </view>
+    <van-toast id="van-toast" />
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import req from '../req';
+import Toast from '../components/vant/toast/toast';
+
+wepy.page({
+  data: {
+    name: '',
+    phone: '',
+    email: '',
+    content: '',
+    userId: '',
+  },
+  methods: {
+    onPostClick() {
+      if (this.name && this.phone && this.content) {
+        req.common
+          .create({
+            modelName: 'Feedback',
+            data: {
+              userId: this.userId,
+              name: this.name,
+              phone: this.phone,
+              email: this.email,
+              content: this.content,
+            },
+          })
+          .then((res) => {
+            if (res.success) {
+              Toast('保存成功');
+              wx.navigateBack({});
+            } else {
+              Toast('保存失败');
+            }
+          });
+      } else {
+        Toast('请填写信息');
+      }
+    },
+    onChange(e) {
+      this[e.$wx.target.dataset.key] = e.$wx.detail;
+    },
+  },
+  onLoad() {
+    this.userId = wx.getStorageSync('uid');
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-cell": "~@/components/vant/cell",
+      "van-field": "~@/components/vant/field",
+      "van-cell-group": "~@/components/vant/cell-group",
+      "van-dialog": "~@/components/vant/dialog",
+      "van-toast": "~@/components/vant/toast",
+      "van-image": "~@/components/vant/image"
+    }
+}
+</config>

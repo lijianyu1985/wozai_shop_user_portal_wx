@@ -23,12 +23,13 @@ async function checkHasLogined() {
   const loggined = await checkSession();
   if (!loggined) {
     wx.removeStorageSync('token');
+    req.refreshToken(null);
     return false;
   }
   const checkTokenRes = await req.auth.checkToken(token);
-  console.log(checkTokenRes);
   if (!checkTokenRes.success) {
     wx.removeStorageSync('token');
+    req.refreshToken(null);
     return false;
   }
   return true;
@@ -94,6 +95,7 @@ async function login(page, userInfo) {
             return;
           }
           wx.setStorageSync('token', resBackend.data.token);
+          req.refreshToken(resBackend.data.token);
           wx.setStorageSync('uid', resBackend.data.uid);
           wx.setStorageSync('session_key', resBackend.data.session_key);
           wx.setStorageSync('openid', resBackend.data.openid);
@@ -124,6 +126,7 @@ async function authorize() {
           .then(function (res) {
             if (res.code == 0) {
               wx.setStorageSync('token', res.data.token);
+              req.refreshToken(res.data.token);
               wx.setStorageSync('uid', res.data.uid);
               resolve(res);
             } else {
@@ -144,6 +147,7 @@ async function authorize() {
 
 function loginOut() {
   wx.removeStorageSync('token');
+  req.refreshToken(null);
   wx.removeStorageSync('uid');
 }
 

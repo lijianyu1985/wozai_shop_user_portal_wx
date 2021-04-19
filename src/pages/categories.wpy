@@ -170,6 +170,9 @@ wepy.page({
     });
     this.getCategories();
   },
+  onShow() {
+    this.refreshCartStatus();
+  },
   computed: mapState(['cart']),
   methods: {
     ...mapActions({
@@ -227,21 +230,10 @@ wepy.page({
           if (res.success) {
             this.setCategories(res.categories);
             this.setCommodities(res.commodities);
-          } else {
-            wx.showToast({
-              title: '信息获取失败1',
-              icon: 'none',
-            });
           }
-          wx.hideLoading();
         })
         .catch((e) => {
           console.log(e);
-          wx.hideLoading();
-          wx.showToast({
-            title: '信息获取失败2',
-            icon: 'none',
-          });
         });
     },
     getCommodities(categoryId) {
@@ -288,7 +280,6 @@ wepy.page({
       this.showSubdivide = false;
     },
     addItemIntoCart(commodity, sku, count) {
-      console.log(this.cart);
       this.addIntoCart({
         cartItem: {
           commodity,
@@ -298,6 +289,9 @@ wepy.page({
         },
       });
       this.showSubdivide = false;
+      this.refreshCartStatus();
+    },
+    refreshCartStatus() {
       if (this.cart.cartItems.length) {
         wx.setTabBarBadge({
           index: 1,

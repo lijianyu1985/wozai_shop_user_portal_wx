@@ -43,6 +43,7 @@
 }
 .items-container {
   width: 100%;
+  background-color: #fff;
 }
 </style>
 
@@ -238,6 +239,7 @@ wepy.page({
                 },
                 fail(err) {
                   console.error('pay fail', err);
+                  wx.showToast({ title: err.errMsg, icon: 'none' });
                 },
               });
             }
