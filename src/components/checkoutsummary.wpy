@@ -25,6 +25,14 @@
     </view>
     <view class="cost-item">
       <view class="cost-item-label">
+        优惠
+      </view>
+      <view class="cost-item-value">
+        ￥{{discountText}}
+      </view>
+    </view>
+    <view class="cost-item">
+      <view class="cost-item-label">
         快递费
       </view>
       <view class="cost-item-value">
@@ -40,6 +48,7 @@ wepy.component({
   props: {
     shippingFee: 0,
     total: 0,
+    discount: 0,
   },
   computed: {
     shippingFeeText: function() {
@@ -47,6 +56,9 @@ wepy.component({
     },
     totalText: function() {
       return (this.total || 0).toFixed(2);
+    },
+    discountText: function() {
+      return (this.discount || 0).toFixed(2);
     },
   },
   data: {},

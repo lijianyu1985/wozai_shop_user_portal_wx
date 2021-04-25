@@ -1,0 +1,91 @@
+<style type="less">
+.commoditycard {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.image-container {
+  height: 100%;
+  width: 100%;
+}
+.image {
+  height: 100%;
+  width: 100%;
+}
+.content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 15px;
+  margin-left: 3px;
+}
+.price-range {
+  color: red;
+}
+</style>
+
+<template>
+    <view class="commoditycard">
+        <navigator
+            class="image-container"
+            url="/pages/commodity?id={{item.id}}"
+        >
+            <image
+                class="image"
+                cover
+                lazy-load
+                fit="cover"
+                style="width:{{width}}px;height:{{width}}px;"
+                src="{{item.photo}}"
+            />
+        </navigator>
+        <view style="width:95%;">
+            <navigator url="/pages/commodity?id={{item.id}}">
+                <text class="content">{{item.name}}</text>
+            </navigator>
+            <view class="price-range">
+                <view>￥{{item.priceRange}}</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+wepy.component({
+  props: {
+    item: {},
+    photo: '',
+    width: 100,
+    price: 0,
+    id: '',
+    priceRange: '',
+  },
+  data: {
+    windowHeight: 0,
+    windowWidth: 0,
+  },
+  methods: {
+    openCommodity(e) {
+      //this.$emit('commodity-click', this.item.id);
+      console.log(this.item);
+    },
+  },
+  onLoad() {
+    console.log(this);
+  },
+});
+</script>
+
+<config>
+{
+    "usingComponents": {
+      "van-button": "~@/components/vant/button",
+      "van-stepper": "~@/components/vant/stepper",
+  "van-icon": "~@/components/vant/icon",
+  "van-button": "~@/components/vant/button"
+    }
+}
+</config>

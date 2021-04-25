@@ -88,21 +88,20 @@
           />
         </block>
         <van-divider customStyle="margin: 2px 0px 2px 0px;" />
-        <van-cell-group>
-          <van-field
-            value="{{ description }}"
-            bind:change="onDescriptionChange"
-            label="留言"
-            type="textarea"
-            placeholder="请输入留言"
-            autosize
-            border="{{ false }}"
-          />
-        </van-cell-group>
+        <van-field
+          value="{{ description }}"
+          bind:change="onDescriptionChange"
+          label="留言"
+          type="textarea"
+          placeholder="请输入留言"
+          autosize
+          border="{{ false }}"
+        />
         <van-divider customStyle="margin: 2px 0px 2px 0px;" />
         <checkoutsummary
           total="{{total}}"
           shippingFee="{{shippingFee}}"
+          discount="{{discount}}"
         />
       </scroll-view>
     </view>
@@ -136,11 +135,18 @@ wepy.page({
     address: {},
     total: 0,
     shippingFee: shippingFee,
+    discount: 0,
     commodityItems: [],
     order: {},
     description: '',
   },
   computed: {
+    discount: function() {
+      if (this.order && this.order._id) {
+        return this.order.rate.discount;
+      }
+      return 0;
+    },
     total: function() {
       if (this.order && this.order._id) {
         return this.order.rate.commodityCost;
@@ -148,7 +154,7 @@ wepy.page({
       return 0;
     },
     totalAllText: function() {
-      const total = this.total + this.shippingFee;
+      const total = this.total + this.shippingFee - (this.discount || 0);
       return total.toFixed(2);
     },
     disableCheckout: function() {
@@ -169,7 +175,7 @@ wepy.page({
       this.description = e.$wx.detail;
     },
     loadOrder(orderId) {
-      req.order.get(this.orderId).then((res) => {
+      req.order.get(orderId).then((res) => {
         if (res && res.success) {
           this.order = res && res.order;
           this.loadShippingFee();
@@ -267,14 +273,20 @@ wepy.page({
       that.description = that.order.description;
     });
     if (options.orderId) {
+      this.orderId = options.orderId;
       this.loadOrder(options.orderId);
     }
+  },
+  onPullDownRefresh() {
+    this.loadOrder(this.order._id);
+    wx.stopPullDownRefresh();
   },
 });
 </script>
 
 <config>
 {
+    "enablePullDownRefresh": true,
     "navigationBarTitleText": "老三家",
     "usingComponents": {
       "van-button": "~@/components/vant/button",

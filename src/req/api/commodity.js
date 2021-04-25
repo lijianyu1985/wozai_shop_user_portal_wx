@@ -24,6 +24,14 @@ function install(req, request) {
         data,
       });
     },
+    search(data) {
+      const url = `${req.apiUrl}/Wx/Commodity/Search`;
+      return request({
+        url,
+        method: 'GET',
+        data,
+      });
+    },
   };
 }
 

@@ -1,0 +1,219 @@
+
+<style lang="less">
+.grid-container {
+  width: 100%;
+}
+view.van-dropdown-menu__item {
+  justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  width: 100%;
+}
+view.van-grid-item__content {
+  padding: 0;
+}
+.load-more-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+.load-more-divider {
+  display: flex;
+  flex: 1;
+}
+.no-more-label {
+  display: flex;
+  width: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 14px;
+  margin-right: 14px;
+  text-align: center;
+  color: var(--button-default-color, #323233);
+}
+.sticky,
+.filter-order-container {
+  width: 100%;
+}
+</style>
+
+<template>
+  <view
+    id="container"
+    class="container"
+  >
+    <van-sticky
+      class="sticky"
+      container="{{ container }}"
+    >
+      <van-dropdown-menu class="filter-order-container">
+        <van-dropdown-item
+          title="价格排序"
+          value="{{ sortByPrice }}"
+          options="{{ sortByPriceOptions }}"
+          bind:change="onSortPriceChange"
+        />
+      </van-dropdown-menu>
+    </van-sticky>
+    <van-grid
+      class="grid-container"
+      column-num="2"
+      border="{{ false }}"
+      gutter="5"
+    >
+      <van-grid-item
+        use-slot
+        wx:for="{{ commodities }}"
+        wx:key="index"
+      >
+        <commoditycard
+          key="{{index}}"
+          width="{{(windowWidth-15)/2}}"
+          item="{{item}}"
+        />
+      </van-grid-item>
+    </van-grid>
+    <view class="load-more-container">
+      <van-divider
+        class="load-more-divider"
+        customStyle="font-size: 18px;flex:1;"
+      >
+      </van-divider>
+      <van-button
+        wx:if="{{hasMore}}"
+        type="default"
+        bind:click="loadMore"
+        custom-style="border:none;background-color:transparent;"
+        icon="down"
+      >加载更多...</van-button>
+      <view
+        wx:if="{{!hasMore}}"
+        class="no-more-label"
+      >没有更多数据...</view>
+      <van-divider
+        class="load-more-divider"
+        customStyle="font-size: 18px;flex:1;"
+      >
+      </van-divider>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import store from '../store';
+import req from '../req';
+import { buildPictureUrl } from '../utils/tools';
+
+wepy.page({
+  store,
+  data: {
+    searchTerm: '',
+    commodities: [],
+    sortByPriceOptions: [
+      { text: '由低到高', value: 0 },
+      { text: '由高到低', value: 1 },
+    ],
+    sortByPrice: 0,
+    sortByPriceMap: {
+      0: { sortBy: 'price', order: 1 /*1 means asc*/ },
+      1: { sortBy: 'price', order: -1 /*-1 means desc*/ },
+    },
+    windowHeight: 0,
+    windowWidth: 0,
+    hasMore: true,
+    pageSize: 10,
+    page: 1,
+  },
+  onLoad(options) {
+    let that = this;
+    wx.getSystemInfo({
+      success: function(res) {
+        that.windowHeight = res.windowHeight;
+        that.windowWidth = res.windowWidth;
+      },
+    });
+    this.searchTerm = options.searchTerm;
+    this.searchCommodities(this.searchTerm);
+  },
+  methods: {
+    setCommodities(commodities, loadMore) {
+      var convertedCommodities = (commodities || []).map((x) =>
+        Object.assign({}, x, {
+          photo: buildPictureUrl(x.photo),
+        })
+      );
+      if (loadMore) {
+        this.commodities = this.commodities.concat(convertedCommodities);
+      } else {
+        this.commodities = convertedCommodities;
+      }
+    },
+    searchCommodities(searchTerm, loadMore = false) {
+      wx.showLoading({
+        title: '请稍后...',
+        icon: 'loading',
+        mask: true,
+      });
+      console.log(this.sortByPriceMap[this.sortByPrice]);
+      req.commodity
+        .search({
+          ...this.sortByPriceMap[this.sortByPrice],
+          searchTerm,
+          page: loadMore ? this.page + 1 : this.page,
+          size: this.pageSize,
+        })
+        .then((res) => {
+          wx.hideLoading();
+          if (res.success) {
+            if (!res.commodities || res.commodities.length === 0) {
+              wx.showToast({
+                title: '搜索到0条数据',
+                icon: 'none',
+              });
+            } else {
+              this.setCommodities(res.commodities, loadMore);
+              this.hasMore = res.total > this.commodities.length;
+              this.page = res.page;
+            }
+          } else {
+            wx.showToast({
+              title: '数据获取失败',
+              icon: 'none',
+            });
+          }
+        })
+        .catch((e) => {
+          wx.hideLoading();
+          wx.showToast({
+            title: '数据获取失败',
+            icon: 'none',
+          });
+        });
+    },
+    onSortPriceChange(e) {
+      this.page = 1;
+      this.sortByPrice = e.$wx.detail;
+      this.searchCommodities(this.searchTerm);
+    },
+    loadMore() {
+      this.searchCommodities(this.searchTerm, true);
+    },
+  },
+});
+</script>
+
+<config>
+{
+    "navigationBarTitleText": "老三家",
+    "usingComponents": {
+      "van-grid": "~@/components/vant/grid",
+      "van-grid-item": "~@/components/vant/grid-item",
+      "van-dropdown-menu": "~@/components/vant/dropdown-menu",
+      "van-dropdown-item": "~@/components/vant/dropdown-item",
+      "van-sticky": "~@/components/vant/sticky",
+      "van-divider": "~@/components/vant/divider",
+      "van-button": "~@/components/vant/button",
+      "commoditycard": "~@/components/commoditycard",
+    }
+}
+</config>

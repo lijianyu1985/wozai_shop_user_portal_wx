@@ -37,10 +37,11 @@ wepy.app({
 {
     "pages": [
       "pages/categories",
+      "pages/search",
+      "pages/checkout",
       "pages/orders",
       "pages/order",
       "pages/mine",
-      "pages/checkout",
       "pages/cart",
       "pages/address",
       "pages/addresses",

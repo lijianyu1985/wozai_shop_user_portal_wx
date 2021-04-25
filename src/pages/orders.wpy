@@ -180,6 +180,7 @@ wepy.page({
           return;
         }
       }
+
       req.order
         .page({
           status: statusMap[index],
@@ -234,11 +235,17 @@ wepy.page({
     this.userId = wx.getStorageSync('uid');
     this.loadOrderList(0, false);
   },
+  onPullDownRefresh() {
+    console.log('Pull-down refresh list');
+    this.loadOrderList(this.active.index || 0, false);
+    wx.stopPullDownRefresh();
+  },
 });
 </script>
 
 <config>
 {
+    "enablePullDownRefresh": true,
     "navigationBarTitleText": "老三家",
     "usingComponents": {
       "van-button": "~@/components/vant/button",

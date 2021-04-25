@@ -150,6 +150,14 @@
         </div>
         <div class="rate-item">
           <div class="rate-label">
+            优惠
+          </div>
+          <div class="rate-text">
+            ￥{{discountText}}
+          </div>
+        </div>
+        <div class="rate-item">
+          <div class="rate-label">
             应付总额
           </div>
           <div class="rate-text">
@@ -203,6 +211,14 @@ wepy.page({
         this.order.rate &&
         this.order.rate.shippingFee &&
         this.order.rate.shippingFee.toFixed(2)
+      );
+    },
+    discountText: function() {
+      return (
+        this.order &&
+        this.order.rate &&
+        this.order.rate.discount &&
+        this.order.rate.discount.toFixed(2)
       );
     },
     commodityCostText: function() {
@@ -274,11 +290,16 @@ wepy.page({
     });
     this.userId = wx.getStorageSync('uid');
   },
+  onPullDownRefresh() {
+    this.loadOrder(this.id);
+    wx.stopPullDownRefresh();
+  },
 });
 </script>
 
 <config>
 {
+    "enablePullDownRefresh": true,
     "navigationBarTitleText": "老三家",
     "usingComponents": {
       "van-button": "~@/components/vant/button",
